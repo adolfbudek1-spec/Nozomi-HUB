@@ -14,6 +14,7 @@ local rObjectModule = loadstring(game:HttpGet(nozomi_repo .. "module/zombie_remo
 local ESPModule = loadstring(game:HttpGet(nozomi_repo .. "module/esp_service.lua"))()
 local KeyLocationModule = loadstring(game:HttpGet(nozomi_repo .. "module/zombie_key_location.lua"))()
 local MoveablePartModule = loadstring(game:HttpGet(nozomi_repo .. "module/moveable_part.lua"))()
+local LogsUIModule = loadstring(game:HttpGet(nozomi_repo .. "module/logs_ui.lua"))()
 
 -- SETTINGS OR VARIABLES
 local Options = Library.Options; local Toggles = Library.Toggles
@@ -73,6 +74,13 @@ local Config = {
 	PLATFORM_MATERIAL = Enum.Material.Asphalt
 }
 
+LogsUIModule:Set("ESP_ZOMBIE", Config.ESP_ZOMBIE)
+LogsUIModule:Set("ESP_PLAYER", Config.ESP_PLAYER)
+LogsUIModule:Set("ESP_NPC", Config.ESP_NPC)
+
+LogsUIModule:Set("PLATFORM", Config.PLATFORM_SHOW)
+
+
 --[[============== ASIGN MODULE DATA ==============]]
 MoveablePartModule:AssignAllConfig(Config)
 
@@ -103,6 +111,7 @@ local ESP_GROUP_BOX = Tabs.Main:AddLeftGroupbox("ESP", "user")
 		Callback = function(Value)
 			Config.ESP_ZOMBIE = Value
 			ESPModule:ToggleESP("zombie", Value)
+			LogsUIModule:Set("ESP ZOMBIE", Value)
 		end,
 	})
 
@@ -113,6 +122,7 @@ local ESP_GROUP_BOX = Tabs.Main:AddLeftGroupbox("ESP", "user")
 		Callback = function(Value)
 			Config.ESP_NPC = Value
 			ESPModule:ToggleESP("npc", Value)
+			LogsUIModule:Set("ESP NPC", Value)
 		end,
 	})
 
@@ -123,6 +133,7 @@ local ESP_GROUP_BOX = Tabs.Main:AddLeftGroupbox("ESP", "user")
 		Callback = function(Value)
 			Config.ESP_PLAYER = Value
 			ESPModule:ToggleESP("player", Value)
+			LogsUIModule:Set("ESP PLAYER", Value)
 		end,
 	})
 --
@@ -133,6 +144,7 @@ local PLATFORM_BOX = Tabs.Main:AddRightGroupbox("Moveable Platform", "move-horiz
 		Default  = Config.PLATFORM_SHOW,
 		Callback = function(Value)
 			MoveablePartModule:setValue("spawn", Value)
+			LogsUIModule:Set("PLATFORM", Value)
 		end,
 	})
 

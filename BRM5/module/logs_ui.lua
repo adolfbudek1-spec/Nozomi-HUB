@@ -18,6 +18,11 @@ frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
 frame.BorderSizePixel = 0
 frame.Parent = gui
 
+Instance.new("UICorner", frame)
+
+local stroke = Instance.new("UIStroke", frame)
+stroke.Color = Color3.fromRGB(60,60,60)
+
 -- TITLE BAR
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 25)
@@ -35,6 +40,8 @@ minimize.Position = UDim2.new(1, -25, 0, 0)
 minimize.Text = "-"
 minimize.BackgroundTransparency = 1
 minimize.TextColor3 = Color3.new(1,1,1)
+minimize.Font = Enum.Font.Code
+minimize.TextSize = 16
 minimize.Parent = title
 
 -- CONTENT
@@ -53,6 +60,9 @@ content.Parent = frame
 
 -- FORMAT VALUE
 local function format(v)
+	if typeof(v) == "boolean" then
+		return v and "ON" or "OFF"
+	end
 	if typeof(v) == "EnumItem" then
 		return v.Name
 	end
@@ -60,11 +70,16 @@ local function format(v)
 end
 
 -- REFRESH UI
+local MAX_LINES = 20
+
 local function refresh()
 	local text = ""
 
+	local count = 0
 	for i, data in ipairs(states) do
 		text ..= data.key .. " : " .. format(data.value) .. "\n"
+		count += 1
+		if count >= MAX_LINES then break end
 	end
 
 	content.Text = text
@@ -86,10 +101,10 @@ function StateUI:Set(key, value)
 	refresh()
 end
 
--- CLEAR (optional)
+-- CLEAR
 function StateUI:Clear()
-	states = {}
-	stateIndex = {}
+	table.clear(states)
+	table.clear(stateIndex)
 	refresh()
 end
 
@@ -110,7 +125,7 @@ minimize.MouseButton1Click:Connect(function()
 	end
 end)
 
--- DRAG SYSTEM
+-- DRAG SYSTEM (FIXED SMOOTH)
 local dragging = false
 local dragStart, startPos
 
@@ -119,18 +134,19 @@ title.InputBegan:Connect(function(input)
 		dragging = true
 		dragStart = input.Position
 		startPos = frame.Position
-
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
 	end
 end)
 
-title.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+title.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 		local delta = input.Position - dragStart
+
 		frame.Position = UDim2.new(
 			startPos.X.Scale,
 			startPos.X.Offset + delta.X,
