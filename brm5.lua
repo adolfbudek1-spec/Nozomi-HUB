@@ -14,7 +14,7 @@ local rObjectModule = loadstring(game:HttpGet(nozomi_repo .. "module/zombie_remo
 local ESPModule = loadstring(game:HttpGet(nozomi_repo .. "module/esp_service.lua"))()
 local KeyLocationModule = loadstring(game:HttpGet(nozomi_repo .. "module/zombie_key_location.lua"))()
 local MoveablePartModule = loadstring(game:HttpGet(nozomi_repo .. "module/moveable_part.lua"))()
-local LogsUIModule = loadstring(game:HttpGet(nozomi_repo .. "module/logs_ui.lua"))()
+--local LogsUIModule = loadstring(game:HttpGet(nozomi_repo .. "module/logs_ui.lua"))()
 
 -- SETTINGS OR VARIABLES
 local Options = Library.Options; local Toggles = Library.Toggles
@@ -65,6 +65,7 @@ local Window = Library:CreateWindow({
 local Config = {
 	ESP_ZOMBIE = false,
 	ESP_PLAYER = false,
+	ESP_PLAYER_LABEL = false,
 	ESP_NPC = false,
 
 	-- PLATFORM
@@ -133,6 +134,16 @@ local ESP_GROUP_BOX = Tabs.Main:AddLeftGroupbox("ESP", "user")
 			Config.ESP_PLAYER = Value
 			ESPModule:ToggleESP("player", Value)
 			--LogsUIModule:Set("ESP PLAYER", Value)
+		end,
+	})
+
+	ESP_GROUP_BOX:AddToggle("EspPlayer2", {
+		Text     = "Show Label for Player",
+		Tooltip  = "Show billboard label to all player.",
+		Default  = Config.ESP_PLAYER_LABEL,
+		Callback = function(Value)
+			Config.ESP_PLAYER_LABEL = Value
+			ESPModule:SetPlayerMarker(Value)
 		end,
 	})
 --
