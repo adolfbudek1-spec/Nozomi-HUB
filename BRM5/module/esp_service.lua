@@ -20,6 +20,22 @@ local function GetRootPos()
 	end
 end
 
+local function GetDistanceColor(dist)
+    local maxDist = 500
+    local t = math.clamp(dist / maxDist, 0, 1)
+
+    if t < 0.5 then
+        -- hijau → kuning
+        local tt = t * 2
+        return 255 * tt, 255, 0
+    else
+        -- kuning → merah
+        local tt = (t - 0.5) * 2
+        return 255, 255 * (1 - tt), 0
+    end
+end
+
+
 -- ================= CLEAN =================
 local function ClearHighlights(tag)
 	for _, v in ipairs(workspace:GetDescendants()) do
@@ -78,7 +94,7 @@ local function AddMarker(male, tag)
 
     local billboard = Instance.new("BillboardGui")
     billboard.Name = "ObjectiveUI"
-    billboard.Size = UDim2.new(0,150,0,80)
+    billboard.Size = UDim2.new(0,130,0,60)
     billboard.StudsOffset = Vector3.new(0,2,0)
     billboard.Adornee = part
     billboard.AlwaysOnTop = true
@@ -96,7 +112,12 @@ local function AddMarker(male, tag)
     label.Font = Enum.Font.GothamBold
     label.TextSize = 14
     label.RichText = true
-    label.Text = '<font color="#FFFF00">[PLAYER]</font>\n<font color="#FFFFFF">--m</font>'
+	local r, g, b = GetDistanceColor(dist)
+	label.Text = string.format(
+		'<font color="rgb(%d,%d,%d)">[PLAYER]</font>\n<font color="#FFFFFF">%dm</font>',
+		r, g, b,
+		math.floor(dist)
+	)
     label.Parent = billboard
 
     -- Disconnect lama kalau ada
@@ -142,6 +163,7 @@ local function ScanExisting()
 
 		if ESP_PLAYER and v.Name == "Male" and v:FindFirstChild("Humanoid") then
 			AddMarker(v, "ESP_PLAYER")
+			AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
 		end
 	end
 end
@@ -165,6 +187,7 @@ local function StartDescendantWatcher()
 
 			if ESP_PLAYER and v.Name == "Male" then
 				AddMarker(v, "ESP_PLAYER")
+				AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
 			end
 		end)
 	end)
