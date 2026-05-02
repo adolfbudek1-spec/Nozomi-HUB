@@ -11,8 +11,9 @@ local Library = loadstring(game:HttpGet(obsidian_repo .. "Library.lua"))()
 local ThemeManager = loadstring(game:HttpGet(obsidian_repo .. "addons/ThemeManager.lua"))()
 local var = loadstring(game:HttpGet(nozomi_repo .. "Variable.lua"))()
 local rObjectModule = loadstring(game:HttpGet(nozomi_repo .. "module/zombie_remove_object.lua"))()
-local espServiceModule = loadstring(game:HttpGet(nozomi_repo .. "module/esp_service.lua"))()
-KeyLocationService = loadstring(game:HttpGet(nozomi_repo .. "module/zombie_key_location.lua"))()
+local ESPModule = loadstring(game:HttpGet(nozomi_repo .. "module/esp_service.lua"))()
+local KeyLocationModule = loadstring(game:HttpGet(nozomi_repo .. "module/zombie_key_location.lua"))()
+local MoveablePartModule = loadstring(game:HttpGet(nozomi_repo .. "module/moveable_part.lua"))()
 
 -- SETTINGS OR VARIABLES
 local Options = Library.Options; local Toggles = Library.Toggles
@@ -179,7 +180,7 @@ local ESP_GROUP_BOX = Tabs.Main:AddLeftGroupbox("ESP", "user")
 		Visible  = ToggleOnZombie(),
 		Callback = function(Value)
 			Config.ESP_ZOMBIE = Value
-			espServiceModule:ToggleESP("zombie", Value)
+			ESPModule:ToggleESP("zombie", Value)
 		end,
 	})
 
@@ -189,7 +190,7 @@ local ESP_GROUP_BOX = Tabs.Main:AddLeftGroupbox("ESP", "user")
 		Default  = Config.ESP_NPC,
 		Callback = function(Value)
 			Config.ESP_NPC = Value
-			espServiceModule:ToggleESP("npc", Value)
+			ESPModule:ToggleESP("npc", Value)
 		end,
 	})
 
@@ -199,7 +200,7 @@ local ESP_GROUP_BOX = Tabs.Main:AddLeftGroupbox("ESP", "user")
 		Default  = Config.ESP_PLAYER,
 		Callback = function(Value)
 			Config.ESP_PLAYER = Value
-			espServiceModule:ToggleESP("player", Value)
+			ESPModule:ToggleESP("player", Value)
 		end,
 	})
 --
@@ -209,7 +210,7 @@ local PLATFORM_BOX = Tabs.Main:AddRightGroupbox("Moveable Platform", "move-horiz
 		Tooltip  = "Tekan J untuk naik, K untuk turun.",
 		Default  = Config.PLATFORM_SPAWNED,
 		Callback = function(Value)
-			togglePlatform()
+			MoveablePartModule:setValue("spawn", Value)
 		end,
 	})
 
@@ -220,7 +221,7 @@ local PLATFORM_BOX = Tabs.Main:AddRightGroupbox("Moveable Platform", "move-horiz
 		Max      = 2.0,
 		Rounding = 1,
 		Callback = function(Value)
-			Config.PLATFORM_SPEED = Value
+			MoveablePartModule:setValue("speed", Value)
 		end,
 	})
 
@@ -231,12 +232,7 @@ local PLATFORM_BOX = Tabs.Main:AddRightGroupbox("Moveable Platform", "move-horiz
 		Max      = 1.0,
 		Rounding = 1,
 		Callback = function(Value)
-			Config.PLATFORM_TRANSPARENCY = Value
-			for _, part in ipairs(Config.PLATFORM) do
-				if part and part.Parent then
-					part.Transparency = Value
-				end
-			end
+			MoveablePartModule:setValue("speed", Value)
 		end,
 	})
 
@@ -263,7 +259,7 @@ local PLATFORM_BOX = Tabs.Main:AddRightGroupbox("Moveable Platform", "move-horiz
 local MAP_BOX = Tabs.Map:AddLeftGroupbox("Key Location", "map-pin")
 	local keyLocationSelected = {}
 	local function GetDropdownList()
-		local list = KeyLocationService:GetAllKeyName()
+		local list = KeyLocationModule:GetAllKeyName()
 		table.insert(list, 1, "All") -- taruh paling atas
 		return list
 	end
@@ -276,7 +272,7 @@ local MAP_BOX = Tabs.Map:AddLeftGroupbox("Key Location", "map-pin")
 			keyLocationSelected = {}
 
 			if val["Select All"] then
-				local allKeys = KeyLocationService:GetAllKeyName()
+				local allKeys = KeyLocationModule:GetAllKeyName()
 				local newVal = { All = true }
 				for _, name in ipairs(allKeys) do
 					newVal[name] = true
@@ -297,14 +293,14 @@ local MAP_BOX = Tabs.Map:AddLeftGroupbox("Key Location", "map-pin")
 		Text = "Show Marker",
 		Callback = function(v)
 			if v then
-				KeyLocationService:ShowLocations(keyLocationSelected)
+				KeyLocationModule:ShowLocations(keyLocationSelected)
 			else
-				KeyLocationService:ClearMarkers()
+				KeyLocationModule:ClearMarkers()
 			end
 		end
 	})
 	MAP_BOX:AddButton("Clear All Markers", function()
-		KeyLocationService:ClearMarkers()
+		KeyLocationModule:ClearMarkers()
 		Options.KeyLocationDropdown:SetValue(nil)
 	end)
 --
