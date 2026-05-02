@@ -185,7 +185,7 @@ local function StopDescendantWatcher()
 	end
 end
 
-function ToggleESP(nama, state)
+function EspService:ToggleESP(nama, state)
 	local tag = "ESP_TAG_" .. string.upper(nama)
 
 	if nama == "player" then
