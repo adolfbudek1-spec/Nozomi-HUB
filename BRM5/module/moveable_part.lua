@@ -3,6 +3,7 @@ local MoveablePart = {}
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Player = game:GetService("Players").LocalPlayer
+
 local nozomiDebris = workspace:FindFirstChild("_nozomiDebris")
 if not nozomiDebris then
 	nozomiDebris = Instance.new("Folder")
@@ -22,6 +23,7 @@ local CONFIG = {
 	INPUT_ENDED_CON = nil
 }
 
+-- ROOT
 local function GetRoot()
 	local wm = Player:FindFirstChild("WorldModel")
 	if not wm then return nil end
@@ -41,12 +43,24 @@ local function GetRoot()
 	return nil
 end
 
+-- CLEAN
+local function removePlatform()
+	for _, part in ipairs(nozomiDebris:GetChildren()) do
+		if part.Name == "platform" then
+			part:Destroy()
+		end
+	end
+end
+
+-- SPAWN
 local function spawnPlatform()
 	local hrp = GetRoot()
 	if not hrp then
 		warn("RootPart not found...")
 		return
 	end
+
+	removePlatform()
 
 	local size = 2048
 	local range = 8
@@ -73,12 +87,12 @@ local function spawnPlatform()
 	end
 end
 
+-- MOVE
 local function startMovement()
 	if CONFIG.MOVE_CON then return end
 
 	CONFIG.INPUT_BEGAN_CON = UserInputService.InputBegan:Connect(function(input, gp)
 		if gp then return end
-
 		if input.KeyCode == Enum.KeyCode.J then
 			CONFIG.MOVE_DIR = 1
 		elseif input.KeyCode == Enum.KeyCode.K then
@@ -103,32 +117,22 @@ local function startMovement()
 	end)
 end
 
-local function togglePlatform()
-	if CONFIG.IS_SHOW then
-		for _, part in ipairs(nozomiDebris:GetChildren()) do
-			if part.Name == "platform" then
-				part:Destroy()
-			end
-		end
-
-		if CONFIG.MOVE_CON then CONFIG.MOVE_CON:Disconnect() CONFIG.MOVE_CON = nil end
-		if CONFIG.INPUT_BEGAN_CON then CONFIG.INPUT_BEGAN_CON:Disconnect() CONFIG.INPUT_BEGAN_CON = nil end
-		if CONFIG.INPUT_ENDED_CON then CONFIG.INPUT_ENDED_CON:Disconnect() CONFIG.INPUT_ENDED_CON = nil end
-
-		CONFIG.IS_SHOW = false
-	else
-		spawnPlatform()
-		startMovement()
-		CONFIG.IS_SHOW = true
-	end
+-- STOP
+local function stopMovement()
+	if CONFIG.MOVE_CON then CONFIG.MOVE_CON:Disconnect() CONFIG.MOVE_CON = nil end
+	if CONFIG.INPUT_BEGAN_CON then CONFIG.INPUT_BEGAN_CON:Disconnect() CONFIG.INPUT_BEGAN_CON = nil end
+	if CONFIG.INPUT_ENDED_CON then CONFIG.INPUT_ENDED_CON:Disconnect() CONFIG.INPUT_ENDED_CON = nil end
 end
 
+-- MAIN API
 function MoveablePart:setValue(name, value)
 	if name == "spawn" then
-		if value and not CONFIG.IS_SHOW then
+		if value then
 			spawnPlatform()
-		elseif not value and CONFIG.IS_SHOW then
+			startMovement()
+		else
 			removePlatform()
+			stopMovement()
 		end
 
 		CONFIG.IS_SHOW = value
