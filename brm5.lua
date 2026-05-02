@@ -66,11 +66,11 @@ local Config = {
 	ESP_PLAYER = false,
 	ESP_NPC = false,
 
-	-- MOVEPART
-	MovePart_SHOW = false,
-	MovePart_SPEED = 0.4
-	MovePart_TRANSPARENCY = 0.4
-	MovePart_MATERIAL = Enum.Material.Plastic,
+	-- PLATFORM
+	PLATFORM_SHOW = false,
+	PLATFORM_SPEED = 0.4,
+	PLATFORM_TRANSPARENCY = 0.4,
+	PLATFORM_MATERIAL = Enum.Material.Plastic
 }
 
 --[[============== ASIGN MODULE DATA ==============]]
@@ -130,7 +130,7 @@ local PLATFORM_BOX = Tabs.Main:AddRightGroupbox("Moveable Platform", "move-horiz
 	PLATFORM_BOX:AddToggle("SpawnPlatform", {
 		Text     = "Spawn Platform",
 		Tooltip  = "Tekan J untuk naik, K untuk turun.",
-		Default  = Config.PLATFORM_SPAWNED,
+		Default  = Config.PLATFORM_SHOW,
 		Callback = function(Value)
 			MoveablePartModule:setValue("spawn", Value)
 		end,
