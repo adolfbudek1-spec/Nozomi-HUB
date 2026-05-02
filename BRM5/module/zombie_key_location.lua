@@ -51,6 +51,18 @@ local function AddMarker(name, pos, category, color)
 	billboard.AlwaysOnTop = true
 	billboard.Parent = part
 
+		-- Diamond icon
+	local icon = Instance.new("Frame")
+	icon.Name = "Icon"
+	icon.Size = UDim2.new(0, 15, 0, 15)
+	icon.Position = UDim2.new(0.5, 0, 0, 20)
+	icon.AnchorPoint = Vector2.new(0.5, 0.5)
+	icon.BackgroundColor3 = color or Color3.fromRGB(255, 140, 0)
+	icon.Rotation = 45
+	icon.BorderSizePixel = 2
+	icon.BorderColor3 = Color3.new(0, 0, 0)
+	icon.Parent = billboard
+
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.new(1, 0, 1, 0)
 	label.BackgroundTransparency = 1
@@ -102,7 +114,7 @@ function KeyLocationService:ShowLocations(selectedList)
 			if data.part and data.label then
 				local dist = math.floor((rootPos - data.pos).Magnitude)
 				data.label.Text = string.format(
-					"[%s]\n%s\n%dm",
+		'<font color="#FF8C00">[%s]</font>\n<b>%s</b>\n<font color="#FFFFFF">--m</font>',
 					data.category,
 					data.name,
 					dist
