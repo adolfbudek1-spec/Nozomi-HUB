@@ -12,10 +12,10 @@ if not nozomiDebris then
 end
 
 local CONFIG = {
-	IS_SHOW = false,
-	SPEED = 0.4,
-	TRANSPARENCY = 0.4,
-	MATERIAL = Enum.Material.Plastic,
+	IS_SHOW = nil,
+	SPEED = nil,
+	TRANSPARENCY = nil,
+	MATERIAL = nil,
 
 	MOVE_DIR = 0,
 	MOVE_CON = nil,
@@ -23,7 +23,6 @@ local CONFIG = {
 	INPUT_ENDED_CON = nil
 }
 
--- ROOT
 local function GetRoot()
 	local wm = Player:FindFirstChild("WorldModel")
 	if not wm then return nil end
@@ -43,7 +42,6 @@ local function GetRoot()
 	return nil
 end
 
--- CLEAN
 local function removePlatform()
 	for _, part in ipairs(nozomiDebris:GetChildren()) do
 		if part.Name == "platform" then
@@ -52,7 +50,6 @@ local function removePlatform()
 	end
 end
 
--- SPAWN
 local function spawnPlatform()
 	local hrp = GetRoot()
 	if not hrp then
@@ -87,7 +84,6 @@ local function spawnPlatform()
 	end
 end
 
--- MOVE
 local function startMovement()
 	if CONFIG.MOVE_CON then return end
 
@@ -117,14 +113,12 @@ local function startMovement()
 	end)
 end
 
--- STOP
 local function stopMovement()
 	if CONFIG.MOVE_CON then CONFIG.MOVE_CON:Disconnect() CONFIG.MOVE_CON = nil end
 	if CONFIG.INPUT_BEGAN_CON then CONFIG.INPUT_BEGAN_CON:Disconnect() CONFIG.INPUT_BEGAN_CON = nil end
 	if CONFIG.INPUT_ENDED_CON then CONFIG.INPUT_ENDED_CON:Disconnect() CONFIG.INPUT_ENDED_CON = nil end
 end
 
--- MAIN API
 function MoveablePart:setValue(name, value)
 	if name == "spawn" then
 		if value then
@@ -158,6 +152,13 @@ function MoveablePart:setValue(name, value)
 			end
 		end
 	end
+end
+
+function MoveablePart:AssignAllConfig(config)
+	MoveablePart:setValue("spawn", config.MovePart_SHOW)
+	MoveablePart:setValue("speed", config.MovePart_SPEED)
+	MoveablePart:setValue("transparency", config.MovePart_TRANSPARENCY)
+	MoveablePart:setValue("material", config.MovePart_MATERIAL)
 end
 
 return MoveablePart

@@ -66,12 +66,15 @@ local Config = {
 	ESP_PLAYER = false,
 	ESP_NPC = false,
 
-	PLATFORM = {},
-	PLATFORM_SPAWNED = false,
-	PLATFORM_SPEED = 0.4,
-	PLATFORM_TRANSPARENCY = 0.5,
-	PLATFORM_MATERIAL = Enum.Material.Plastic,
+	-- MOVEPART
+	MovePart_SHOW = false,
+	MovePart_SPEED = 0.4
+	MovePart_TRANSPARENCY = 0.4
+	MovePart_MATERIAL = Enum.Material.Plastic,
 }
+
+--[[============== ASIGN MODULE DATA ==============]]
+MoveablePartModule:AssignAllConfig(Config)
 
 --[[============== REGISTERED TABS ==============]]
 local Tabs = {
