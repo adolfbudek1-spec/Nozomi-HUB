@@ -63,13 +63,22 @@ local function AddMarker(name, pos, category, color)
 	icon.BorderColor3 = Color3.new(0, 0, 0)
 	icon.Parent = billboard
 
+	-- Label (category + name + distance placeholder)
 	local label = Instance.new("TextLabel")
-	label.Size = UDim2.new(1, 0, 1, 0)
+	label.Name = "DistanceLabel"
+	label.Size = UDim2.new(1, 0, 0, 40)
+	label.Position = UDim2.new(0.5, 0, 0, 55)
+	label.AnchorPoint = Vector2.new(0.5, 0.5)
 	label.BackgroundTransparency = 1
-	label.TextColor3 = Color3.new(1,1,1)
+	label.TextColor3 = Color3.new(1, 1, 1)
+	label.TextStrokeTransparency = 0
 	label.Font = Enum.Font.GothamBold
 	label.TextSize = 14
 	label.RichText = true
+	label.Text = string.format(
+		'<font color="#FF8C00">[%s]</font>\n<b>%s</b>\n<font color="#FFFFFF">--m</font>',
+		category, name
+	)
 	label.Parent = billboard
 
 	activeMarkers[name] = {
