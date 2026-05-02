@@ -68,8 +68,11 @@ local function AddMarker(male, tag)
     part.Name = tag
     part.Size = Vector3.new(1,1,1)
     part.CFrame = CFrame.new(root.Position)
-    part.Anchored = true
-    part.CanCollide = false
+	part.Massless = true
+	part.Anchored = true
+	part.CanCollide = false
+	part.CanTouch = false
+	part.CanQuery = false
     part.Transparency = 1
     part.Parent = male
 
