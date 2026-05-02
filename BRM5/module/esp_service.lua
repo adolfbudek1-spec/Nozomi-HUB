@@ -112,6 +112,7 @@ local function AddMarker(male, tag)
     label.Font = Enum.Font.GothamBold
     label.TextSize = 14
     label.RichText = true
+	local dist = (root.Position - GetRootPos()).Magnitude
 	local r, g, b = GetDistanceColor(dist)
 	label.Text = string.format(
 		'<font color="rgb(%d,%d,%d)">[PLAYER]</font>\n<font color="#FFFFFF">%dm</font>',
