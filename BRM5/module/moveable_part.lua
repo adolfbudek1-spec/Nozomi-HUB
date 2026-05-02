@@ -2,11 +2,7 @@ local MoveablePart = {}
 
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-
-local Player = Players.LocalPlayer
-
--- Folder safe
+local Player = game:GetService("Players").LocalPlayer
 local nozomiDebris = workspace:FindFirstChild("_nozomiDebris")
 if not nozomiDebris then
 	nozomiDebris = Instance.new("Folder")
@@ -14,18 +10,18 @@ if not nozomiDebris then
 	nozomiDebris.Parent = workspace
 end
 
--- State
-local moveDir = 0
-local moveConn, inputBeganConn, inputEndedConn
-
-local PLATFORM = {
-	SPAWNED = false,
+local CONFIG = {
+	IS_SHOW = false,
 	SPEED = 0.4,
 	TRANSPARENCY = 0.4,
-	MATERIAL = Enum.Material.Plastic
+	MATERIAL = Enum.Material.Plastic,
+
+	MOVE_DIR = 0,
+	MOVE_CON = nil,
+	INPUT_BEGAN_CON = nil,
+	INPUT_ENDED_CON = nil
 }
 
--- Get root
 local function GetRoot()
 	local wm = Player:FindFirstChild("WorldModel")
 	if not wm then return nil end
@@ -45,7 +41,6 @@ local function GetRoot()
 	return nil
 end
 
--- SPAWN PLATFORM
 local function spawnPlatform()
 	local hrp = GetRoot()
 	if not hrp then
@@ -54,8 +49,6 @@ local function spawnPlatform()
 	end
 
 	local size = 2048
-
-	-- range besar dunia (bisa kamu adjust)
 	local range = 8
 
 	for x = -range, range do
@@ -66,8 +59,8 @@ local function spawnPlatform()
 			part.Size = Vector3.new(size, 1, size)
 			part.Anchored = true
 			part.CanCollide = true
-			part.Transparency = PLATFORM.TRANSPARENCY
-			part.Material = PLATFORM.MATERIAL
+			part.Transparency = CONFIG.TRANSPARENCY
+			part.Material = CONFIG.MATERIAL
 
 			part.Position = Vector3.new(
 				x * size,
@@ -80,80 +73,71 @@ local function spawnPlatform()
 	end
 end
 
--- REMOVE PLATFORM
-local function removePlatform()
-	for _, part in ipairs(nozomiDebris:GetChildren()) do
-		if part.Name == "platform" then
-			part:Destroy()
-		end
-	end
-end
-
--- MOVE SYSTEM
 local function startMovement()
-	if moveConn then return end
+	if CONFIG.MOVE_CON then return end
 
-	inputBeganConn = UserInputService.InputBegan:Connect(function(input, gp)
+	CONFIG.INPUT_BEGAN_CON = UserInputService.InputBegan:Connect(function(input, gp)
 		if gp then return end
 
 		if input.KeyCode == Enum.KeyCode.J then
-			moveDir = 1
+			CONFIG.MOVE_DIR = 1
 		elseif input.KeyCode == Enum.KeyCode.K then
-			moveDir = -1
+			CONFIG.MOVE_DIR = -1
 		end
 	end)
 
-	inputEndedConn = UserInputService.InputEnded:Connect(function(input)
+	CONFIG.INPUT_ENDED_CON = UserInputService.InputEnded:Connect(function(input)
 		if input.KeyCode == Enum.KeyCode.J or input.KeyCode == Enum.KeyCode.K then
-			moveDir = 0
+			CONFIG.MOVE_DIR = 0
 		end
 	end)
 
-	moveConn = RunService.RenderStepped:Connect(function()
-		if moveDir ~= 0 then
+	CONFIG.MOVE_CON = RunService.RenderStepped:Connect(function()
+		if CONFIG.MOVE_DIR ~= 0 then
 			for _, part in ipairs(nozomiDebris:GetChildren()) do
 				if part.Name == "platform" then
-					part.Position += Vector3.new(0, PLATFORM.SPEED * moveDir, 0)
+					part.Position += Vector3.new(0, CONFIG.SPEED * CONFIG.MOVE_DIR, 0)
 				end
 			end
 		end
 	end)
 end
 
--- TOGGLE MAIN
 local function togglePlatform()
-	local hrp = GetRoot()
-	if not hrp then
-		warn("Rootpart not found...")
-		return
-	end
+	if CONFIG.IS_SHOW then
+		for _, part in ipairs(nozomiDebris:GetChildren()) do
+			if part.Name == "platform" then
+				part:Destroy()
+			end
+		end
 
-	if PLATFORM.SPAWNED == true then
-		removePlatform()
+		if CONFIG.MOVE_CON then CONFIG.MOVE_CON:Disconnect() CONFIG.MOVE_CON = nil end
+		if CONFIG.INPUT_BEGAN_CON then CONFIG.INPUT_BEGAN_CON:Disconnect() CONFIG.INPUT_BEGAN_CON = nil end
+		if CONFIG.INPUT_ENDED_CON then CONFIG.INPUT_ENDED_CON:Disconnect() CONFIG.INPUT_ENDED_CON = nil end
 
-		if moveConn then moveConn:Disconnect() moveConn = nil end
-		if inputBeganConn then inputBeganConn:Disconnect() inputBeganConn = nil end
-		if inputEndedConn then inputEndedConn:Disconnect() inputEndedConn = nil end
-
-		PLATFORM.SPAWNED = false
+		CONFIG.IS_SHOW = false
 	else
 		spawnPlatform()
 		startMovement()
-		PLATFORM.SPAWNED = true
+		CONFIG.IS_SHOW = true
 	end
 end
 
--- SETTER SYSTEM
 function MoveablePart:setValue(name, value)
 	if name == "spawn" then
-		PLATFORM.SPAWNED = value
-		togglePlatform()
+		if value and not CONFIG.IS_SHOW then
+			spawnPlatform()
+		elseif not value and CONFIG.IS_SHOW then
+			removePlatform()
+		end
+
+		CONFIG.IS_SHOW = value
 
 	elseif name == "speed" then
-		PLATFORM.SPEED = value
+		CONFIG.SPEED = value
 
 	elseif name == "transparency" then
-		PLATFORM.TRANSPARENCY = value
+		CONFIG.TRANSPARENCY = value
 
 		for _, part in ipairs(nozomiDebris:GetChildren()) do
 			if part.Name == "platform" then
@@ -162,7 +146,7 @@ function MoveablePart:setValue(name, value)
 		end
 
 	elseif name == "material" then
-		PLATFORM.MATERIAL = value
+		CONFIG.MATERIAL = value
 
 		for _, part in ipairs(nozomiDebris:GetChildren()) do
 			if part.Name == "platform" then
