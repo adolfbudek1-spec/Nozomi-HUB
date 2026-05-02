@@ -155,10 +155,16 @@ function MoveablePart:setValue(name, value)
 end
 
 function MoveablePart:AssignAllConfig(config)
-	MoveablePart:setValue("spawn", config.PLATFORM_SHOW)
-	MoveablePart:setValue("speed", config.PLATFORM_SPEED)
-	MoveablePart:setValue("transparency", config.PLATFORM_TRANSPARENCY)
-	MoveablePartModule:setValue("material", Config.PLATFORM_MATERIAL)
+	self:setValue("speed", config.PLATFORM_SPEED)
+	self:setValue("transparency", config.PLATFORM_TRANSPARENCY)
+
+	local mat = config.PLATFORM_MATERIAL
+	if typeof(mat) == "string" then
+		mat = Enum.Material[mat]
+	end
+
+	self:setValue("material", mat)
+	self:setValue("spawn", config.PLATFORM_SHOW)
 end
 
 return MoveablePart
