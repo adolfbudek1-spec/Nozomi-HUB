@@ -66,6 +66,7 @@ local Config = {
 	ESP_ZOMBIE = false,
 	ESP_PLAYER = false,
 	ESP_PLAYER_LABEL = false,
+	ESP_PLAYER_LABEL_DISTANCE = 1000,
 	ESP_NPC = false,
 
 	-- PLATFORM
@@ -125,7 +126,7 @@ local ESP_GROUP_BOX = Tabs.Main:AddLeftGroupbox("ESP", "user")
 			--LogsUIModule:Set("ESP NPC", Value)
 		end,
 	})
-
+	ESP_GROUP_BOX:AddDivider()
 	ESP_GROUP_BOX:AddToggle("EspPlayer", {
 		Text     = "Toggle ESP Player",
 		Tooltip  = "Highlight all players.",
@@ -138,7 +139,7 @@ local ESP_GROUP_BOX = Tabs.Main:AddLeftGroupbox("ESP", "user")
 	})
 
 	ESP_GROUP_BOX:AddToggle("EspPlayer2", {
-		Text     = "Show Label for Player",
+		Text     = "Show Label",
 		Tooltip  = "Show billboard label to all player.",
 		Default  = Config.ESP_PLAYER_LABEL,
 		Callback = function(Value)
@@ -146,6 +147,17 @@ local ESP_GROUP_BOX = Tabs.Main:AddLeftGroupbox("ESP", "user")
 			ESPModule:SetPlayerMarker(Value)
 		end,
 	})
+
+	ESP_GROUP_BOX:AddSlider("PlatformSpeedSlider", {
+		Text     = "Distance",
+		Default  = Config.ESP_PLAYER_LABEL_DISTANCE,
+		Min      = 100,
+		Max      = 2000,
+		Rounding = 0,
+		Callback = function(Value)
+			ESPModule:SetMaxDistance(Value)
+		end,
+	})	
 --
 local PLATFORM_BOX = Tabs.Main:AddRightGroupbox("Moveable Platform", "move-horizontal")
 	PLATFORM_BOX:AddToggle("SpawnPlatform", {
