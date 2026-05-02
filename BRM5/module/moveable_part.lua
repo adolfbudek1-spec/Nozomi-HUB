@@ -119,7 +119,7 @@ local function startMovement()
 end
 
 -- TOGGLE MAIN
-function MoveablePart:togglePlatform()
+local function togglePlatform()
 	local hrp = GetRoot()
 	if not hrp then
 		warn("Rootpart not found...")
@@ -145,6 +145,7 @@ end
 function MoveablePart:setValue(name, value)
 	if name == "spawn" then
 		PLATFORM.SPAWNED = value
+		togglePlatform()
 
 	elseif name == "speed" then
 		PLATFORM.SPEED = value
