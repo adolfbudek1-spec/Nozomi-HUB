@@ -74,10 +74,10 @@ local Config = {
 	PLATFORM_MATERIAL = Enum.Material.Asphalt
 }
 
-LogsUIModule:Set("ESP ZOMBIE", Config.ESP_ZOMBIE)
+--[[LogsUIModule:Set("ESP ZOMBIE", Config.ESP_ZOMBIE)
 LogsUIModule:Set("ESP PLAYER", Config.ESP_PLAYER)
 LogsUIModule:Set("ESP NPC", Config.ESP_NPC)
-LogsUIModule:Set("PLATFORM", Config.PLATFORM_SHOW)
+LogsUIModule:Set("PLATFORM", Config.PLATFORM_SHOW)]]
 
 
 --[[============== ASIGN MODULE DATA ==============]]
@@ -110,7 +110,7 @@ local ESP_GROUP_BOX = Tabs.Main:AddLeftGroupbox("ESP", "user")
 		Callback = function(Value)
 			Config.ESP_ZOMBIE = Value
 			ESPModule:ToggleESP("zombie", Value)
-			LogsUIModule:Set("ESP ZOMBIE", Value)
+			--LogsUIModule:Set("ESP ZOMBIE", Value)
 		end,
 	})
 
@@ -119,9 +119,9 @@ local ESP_GROUP_BOX = Tabs.Main:AddLeftGroupbox("ESP", "user")
 		Tooltip  = "Highlight all NPCs near the player.",
 		Default  = Config.ESP_NPC,
 		Callback = function(Value)
-			Config.ESP_NPC = Value
+			--Config.ESP_NPC = Value
 			ESPModule:ToggleESP("npc", Value)
-			LogsUIModule:Set("ESP NPC", Value)
+			--LogsUIModule:Set("ESP NPC", Value)
 		end,
 	})
 
@@ -132,7 +132,7 @@ local ESP_GROUP_BOX = Tabs.Main:AddLeftGroupbox("ESP", "user")
 		Callback = function(Value)
 			Config.ESP_PLAYER = Value
 			ESPModule:ToggleESP("player", Value)
-			LogsUIModule:Set("ESP PLAYER", Value)
+			--LogsUIModule:Set("ESP PLAYER", Value)
 		end,
 	})
 --
@@ -143,7 +143,7 @@ local PLATFORM_BOX = Tabs.Main:AddRightGroupbox("Moveable Platform", "move-horiz
 		Default  = Config.PLATFORM_SHOW,
 		Callback = function(Value)
 			MoveablePartModule:setValue("spawn", Value)
-			LogsUIModule:Set("PLATFORM", Value)
+			--LogsUIModule:Set("PLATFORM", Value)
 		end,
 	})
 

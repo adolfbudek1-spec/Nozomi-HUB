@@ -1,6 +1,7 @@
 local EspService = {}
 
 local ESP_PLAYER = false
+local ESP_PLAYER_MARKER = false
 local ESP_NPC = false
 local ESP_ZOMBIE = false
 
@@ -191,10 +192,12 @@ local function ScanExisting()
             AddHighlight(v, "ESP_NPC", Color3.new(1,1,1), Color3.new(1,1,1), 1)
         end
 
-        if ESP_PLAYER and v.Name == "Male" and v:FindFirstChild("Humanoid") then
-            AddMarker(v, "ESP_PLAYER")
-            AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
-        end
+		if ESP_PLAYER and v.Name == "Male" and v:FindFirstChild("Humanoid") then
+			if ESP_PLAYER_MARKER then
+				AddMarker(v, "ESP_PLAYER")
+			end
+			AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
+		end
     end
 end
 
@@ -214,10 +217,12 @@ local function StartDescendantWatcher()
                 AddHighlight(v, "ESP_NPC", Color3.new(1,1,1), Color3.new(1,1,1), 1)
             end
 
-            if ESP_PLAYER and v.Name == "Male" then
-                AddMarker(v, "ESP_PLAYER")
-                AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
-            end
+			if ESP_PLAYER and v.Name == "Male" and v:FindFirstChild("Humanoid") then
+				if ESP_PLAYER_MARKER then
+					AddMarker(v, "ESP_PLAYER")
+				end
+				AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
+			end
         end)
     end)
 end
@@ -232,6 +237,18 @@ local function StopWatcher()
 end
 
 -- ================= TOGGLE =================
+
+function EspService:SetPlayerMarker(state)
+    ESP_PLAYER_MARKER = state
+
+    -- refresh biar langsung update
+    ClearMarker("ESP_PLAYER")
+
+    if ESP_PLAYER and state then
+        ScanExisting()
+    end
+end
+
 function EspService:ToggleESP(nama, state)
 
     if nama == "player" then
