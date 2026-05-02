@@ -12,12 +12,12 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local function GetRootPos()
-	local plr = Players.LocalPlayer
-	local char = plr.Character
-	if char and char:FindFirstChild("HumanoidRootPart") then
-		return char.HumanoidRootPart.Position
+	local isFPS = workspace.Camera:FindFirstChild("WorldModel")
+	if isFPS then
+		return workspace.Camera.WorldModel.Model.Root.Position
+	else
+		return Players.LocalPlayer.WorldModel.WorldModel.Model.Root.Position
 	end
-	return Vector3.zero
 end
 
 -- ================= CLEAN =================
@@ -78,7 +78,7 @@ local function AddMarker(male, tag)
 
     local billboard = Instance.new("BillboardGui")
     billboard.Name = "ObjectiveUI"
-    billboard.Size = UDim2.new(0,200,0,100)
+    billboard.Size = UDim2.new(0,150,0,80)
     billboard.StudsOffset = Vector3.new(0,2,0)
     billboard.Adornee = part
     billboard.AlwaysOnTop = true
@@ -87,7 +87,7 @@ local function AddMarker(male, tag)
 
     local label = Instance.new("TextLabel")
     label.Name = "DistanceLabel"
-    label.Size = UDim2.new(1,0,0,40)
+    label.Size = UDim2.new(1,0,0,20)
     label.Position = UDim2.new(0.5,0,0,55)
     label.AnchorPoint = Vector2.new(0.5,0.5)
     label.BackgroundTransparency = 1
@@ -114,9 +114,6 @@ local function AddMarker(male, tag)
             end
             return
         end
-
-        local root = male:FindFirstChild("Root")
-        if not root then return end
 
         part.CFrame = root.CFrame
 

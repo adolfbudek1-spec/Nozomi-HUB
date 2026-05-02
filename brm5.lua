@@ -77,7 +77,6 @@ local Config = {
 LogsUIModule:Set("ESP ZOMBIE", Config.ESP_ZOMBIE)
 LogsUIModule:Set("ESP PLAYER", Config.ESP_PLAYER)
 LogsUIModule:Set("ESP NPC", Config.ESP_NPC)
-
 LogsUIModule:Set("PLATFORM", Config.PLATFORM_SHOW)
 
 
