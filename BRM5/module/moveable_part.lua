@@ -158,7 +158,7 @@ function MoveablePart:AssignAllConfig(config)
 	MoveablePart:setValue("spawn", config.PLATFORM_SHOW)
 	MoveablePart:setValue("speed", config.PLATFORM_SPEED)
 	MoveablePart:setValue("transparency", config.PLATFORM_TRANSPARENCY)
-	MoveablePartModule:setValue("material", mat)
+	MoveablePartModule:setValue("material", Config.PLATFORM_MATERIAL)
 end
 
 return MoveablePart

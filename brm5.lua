@@ -161,7 +161,7 @@ local PLATFORM_BOX = Tabs.Main:AddRightGroupbox("Moveable Platform", "move-horiz
 	PLATFORM_BOX:AddDropdown("PlatformMaterial", {
 		Text     = "Platform Material",
 		Values   = var.MATERIAL_LIST,
-		Default = Config.PLATFORM_MATERIAL.Name,a
+		Default = Config.PLATFORM_MATERIAL.Name,
 		Tooltip  = "Ganti material platform.",
 		Callback = function(Value)
 			MoveablePartModule:setValue("material", Config.PLATFORM_MATERIAL)
