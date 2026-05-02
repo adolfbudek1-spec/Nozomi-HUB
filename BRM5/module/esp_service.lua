@@ -193,15 +193,11 @@ local function ScanExisting()
         end
 
 		if ESP_PLAYER and v.Name == "Male" and v:FindFirstChild("Humanoid") then
-			
-			-- highlight SELALU jalan
-			AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
-
-			-- marker optional
 			if ESP_PLAYER_MARKER then
 				AddMarker(v, "ESP_PLAYER")
 			end
-		end
+			AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
+end
     end
 end
 
@@ -221,13 +217,11 @@ local function StartDescendantWatcher()
                 AddHighlight(v, "ESP_NPC", Color3.new(1,1,1), Color3.new(1,1,1), 1)
             end
 
-			if ESP_PLAYER and v.Name == "Male" then
-				
-				AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
-
+			if ESP_PLAYER and v.Name == "Male" and v:FindFirstChild("Humanoid") then
 				if ESP_PLAYER_MARKER then
 					AddMarker(v, "ESP_PLAYER")
 				end
+				AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
 			end
         end)
     end)
@@ -247,11 +241,10 @@ end
 function EspService:SetPlayerMarker(state)
     ESP_PLAYER_MARKER = state
 
-    -- hapus marker lama
+    -- refresh biar langsung update
     ClearMarker("ESP_PLAYER")
 
-    -- kalau ESP player aktif → scan ulang
-    if ESP_PLAYER then
+    if ESP_PLAYER and state then
         ScanExisting()
     end
 end
