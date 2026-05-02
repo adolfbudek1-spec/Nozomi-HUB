@@ -74,9 +74,9 @@ local Config = {
 	PLATFORM_MATERIAL = Enum.Material.Asphalt
 }
 
-LogsUIModule:Set("ESP_ZOMBIE", Config.ESP_ZOMBIE)
-LogsUIModule:Set("ESP_PLAYER", Config.ESP_PLAYER)
-LogsUIModule:Set("ESP_NPC", Config.ESP_NPC)
+LogsUIModule:Set("ESP ZOMBIE", Config.ESP_ZOMBIE)
+LogsUIModule:Set("ESP PLAYER", Config.ESP_PLAYER)
+LogsUIModule:Set("ESP NPC", Config.ESP_NPC)
 
 LogsUIModule:Set("PLATFORM", Config.PLATFORM_SHOW)
 

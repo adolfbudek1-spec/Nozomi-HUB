@@ -12,72 +12,80 @@ gui.Name = "StateUI"
 gui.Parent = game:GetService("CoreGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 260, 0, 180)
-frame.Position = UDim2.new(0, 20, 0.5, -90)
-frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+frame.Size = UDim2.new(0, 220, 0, 140)
+frame.Position = UDim2.new(0, 15, 0.5, -70)
+frame.BackgroundColor3 = Color3.fromRGB(0,0,0)
+frame.BackgroundTransparency = 0.25
 frame.BorderSizePixel = 0
 frame.Parent = gui
 
 Instance.new("UICorner", frame)
 
 local stroke = Instance.new("UIStroke", frame)
-stroke.Color = Color3.fromRGB(60,60,60)
+stroke.Color = Color3.fromRGB(70,70,70)
 
 -- TITLE BAR
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 25)
-title.BackgroundColor3 = Color3.fromRGB(35,35,35)
-title.Text = "STATE LOGGER"
+title.Size = UDim2.new(1, 0, 0, 22)
+title.BackgroundColor3 = Color3.fromRGB(10,10,10)
+title.BackgroundTransparency = 0.2
+title.Text = "STATE"
 title.TextColor3 = Color3.new(1,1,1)
 title.Font = Enum.Font.Code
-title.TextSize = 14
+title.TextSize = 13
+title.TextStrokeTransparency = 0.7
 title.Parent = frame
 
--- MINIMIZE BUTTON
+-- MINIMIZE
 local minimize = Instance.new("TextButton")
-minimize.Size = UDim2.new(0, 25, 1, 0)
-minimize.Position = UDim2.new(1, -25, 0, 0)
+minimize.Size = UDim2.new(0, 22, 1, 0)
+minimize.Position = UDim2.new(1, -22, 0, 0)
 minimize.Text = "-"
 minimize.BackgroundTransparency = 1
 minimize.TextColor3 = Color3.new(1,1,1)
 minimize.Font = Enum.Font.Code
-minimize.TextSize = 16
+minimize.TextSize = 14
 minimize.Parent = title
 
 -- CONTENT
 local content = Instance.new("TextLabel")
-content.Size = UDim2.new(1, -10, 1, -30)
-content.Position = UDim2.new(0, 5, 0, 25)
+content.Size = UDim2.new(1, -8, 1, -26)
+content.Position = UDim2.new(0, 4, 0, 22)
 content.BackgroundTransparency = 1
 content.TextXAlignment = Enum.TextXAlignment.Left
 content.TextYAlignment = Enum.TextYAlignment.Top
 content.Font = Enum.Font.Code
-content.TextSize = 13
-content.TextColor3 = Color3.fromRGB(180,180,180)
+content.TextSize = 12
+content.RichText = true
 content.Text = ""
-content.TextWrapped = false
 content.Parent = frame
 
--- FORMAT VALUE
+-- FORMAT VALUE (COLOR + ON/OFF)
 local function format(v)
 	if typeof(v) == "boolean" then
-		return v and "ON" or "OFF"
+		if v then
+			return '<b><font color="#00ff7f">ON</font></b>'
+		else
+			return '<b><font color="#ff4d4d">OFF</font></b>'
+		end
 	end
+
 	if typeof(v) == "EnumItem" then
-		return v.Name
+		return '<b>' .. v.Name .. '</b>'
 	end
-	return tostring(v)
+
+	return '<b>' .. tostring(v) .. '</b>'
 end
 
--- REFRESH UI
-local MAX_LINES = 20
+-- REFRESH
+local MAX_LINES = 15
 
 local function refresh()
 	local text = ""
-
 	local count = 0
+
 	for i, data in ipairs(states) do
-		text ..= data.key .. " : " .. format(data.value) .. "\n"
+		text ..= '<font color="#cccccc">' .. data.key .. '</font>: ' .. format(data.value) .. "<br/>"
 		count += 1
 		if count >= MAX_LINES then break end
 	end
@@ -91,10 +99,7 @@ function StateUI:Set(key, value)
 		local i = stateIndex[key]
 		states[i].value = value
 	else
-		table.insert(states, {
-			key = key,
-			value = value
-		})
+		table.insert(states, { key = key, value = value })
 		stateIndex[key] = #states
 	end
 
@@ -116,16 +121,16 @@ minimize.MouseButton1Click:Connect(function()
 
 	if minimized then
 		content.Visible = false
-		frame.Size = UDim2.new(0, 260, 0, 25)
+		frame.Size = UDim2.new(0, 220, 0, 22)
 		minimize.Text = "+"
 	else
 		content.Visible = true
-		frame.Size = UDim2.new(0, 260, 0, 180)
+		frame.Size = UDim2.new(0, 220, 0, 140)
 		minimize.Text = "-"
 	end
 end)
 
--- DRAG SYSTEM (FIXED SMOOTH)
+-- DRAG
 local dragging = false
 local dragStart, startPos
 
