@@ -122,6 +122,7 @@ end
 function MoveablePart:setValue(name, value)
 	if name == "spawn" then
 		if value then
+			removePlatform()
 			spawnPlatform()
 			startMovement()
 		else
