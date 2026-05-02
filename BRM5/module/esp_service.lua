@@ -2,6 +2,8 @@ local EspService = {}
 
 local ESP_PLAYER = false
 local ESP_PLAYER_MARKER = false
+local ESP_PLAYER_MAX_DISTANCE = 300 -- 🔥 setting max distance
+
 local ESP_NPC = false
 local ESP_ZOMBIE = false
 
@@ -40,10 +42,10 @@ local function GetDistanceColor(dist)
 
     if t < 0.5 then
         local tt = t * 2
-        return 255 * tt, 255, 0 -- hijau → kuning
+        return 255 * tt, 255, 0
     else
         local tt = (t - 0.5) * 2
-        return 255, 255 * (1 - tt), 0 -- kuning → merah
+        return 255, 255 * (1 - tt), 0
     end
 end
 
@@ -123,7 +125,6 @@ local function AddMarker(male, tag)
     label.RichText = true
     label.Parent = billboard
 
-    -- disconnect lama
     if MarkerConnections[male] then
         MarkerConnections[male]:Disconnect()
     end
@@ -139,7 +140,6 @@ local function AddMarker(male, tag)
             return
         end
 
-        if not root then return end
         part.CFrame = root.CFrame
 
         local myPos = GetRootPos()
@@ -147,10 +147,18 @@ local function AddMarker(male, tag)
 
         local dist = (root.Position - myPos).Magnitude
 
+        -- 🔥 MAX DISTANCE CHECK
+        if dist > ESP_PLAYER_MAX_DISTANCE then
+            label.Visible = false
+            return
+        else
+            label.Visible = true
+        end
+
         -- 🎨 warna
         local r, g, b = GetDistanceColor(dist)
 
-        -- 🌫️ fade (100 → 20)
+        -- 🌫️ fade
         local fadeStart = 100
         local fadeEnd = 20
 
@@ -166,7 +174,6 @@ local function AddMarker(male, tag)
         label.TextTransparency = alpha
         label.TextStrokeTransparency = math.clamp(alpha + 0.2, 0, 1)
 
-        -- ukuran dinamis (optional feel pro)
         label.TextSize = math.clamp(18 - (dist / 40), 10, 18)
 
         label.Text = string.format(
@@ -192,12 +199,12 @@ local function ScanExisting()
             AddHighlight(v, "ESP_NPC", Color3.new(1,1,1), Color3.new(1,1,1), 1)
         end
 
-		if ESP_PLAYER and v.Name == "Male" and v:FindFirstChild("Humanoid") then
-			if ESP_PLAYER_MARKER then
-				AddMarker(v, "ESP_PLAYER")
-			end
-			AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
-end
+        if ESP_PLAYER and v.Name == "Male" and v:FindFirstChild("Humanoid") then
+            if ESP_PLAYER_MARKER then
+                AddMarker(v, "ESP_PLAYER")
+            end
+            AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
+        end
     end
 end
 
@@ -217,12 +224,12 @@ local function StartDescendantWatcher()
                 AddHighlight(v, "ESP_NPC", Color3.new(1,1,1), Color3.new(1,1,1), 1)
             end
 
-			if ESP_PLAYER and v.Name == "Male" and v:FindFirstChild("Humanoid") then
-				if ESP_PLAYER_MARKER then
-					AddMarker(v, "ESP_PLAYER")
-				end
-				AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
-			end
+            if ESP_PLAYER and v.Name == "Male" and v:FindFirstChild("Humanoid") then
+                if ESP_PLAYER_MARKER then
+                    AddMarker(v, "ESP_PLAYER")
+                end
+                AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
+            end
         end)
     end)
 end
@@ -236,19 +243,21 @@ local function StopWatcher()
     end
 end
 
--- ================= TOGGLE =================
-
+-- ================= SETTINGS =================
 function EspService:SetPlayerMarker(state)
     ESP_PLAYER_MARKER = state
-
-    -- refresh biar langsung update
     ClearMarker("ESP_PLAYER")
 
-    if ESP_PLAYER and state then
+    if ESP_PLAYER then
         ScanExisting()
     end
 end
 
+function EspService:SetMaxDistance(dist)
+    ESP_PLAYER_MAX_DISTANCE = dist
+end
+
+-- ================= TOGGLE =================
 function EspService:ToggleESP(nama, state)
 
     if nama == "player" then
