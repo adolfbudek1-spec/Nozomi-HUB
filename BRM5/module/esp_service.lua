@@ -5,71 +5,79 @@ local ESP_NPC = false
 local ESP_ZOMBIE = false
 
 local descendantConn
-local worldmodelChildConn
 local MarkerConnections = {}
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
+-- ================= ROOT POS =================
 local function GetRootPos()
-	local isFPS = workspace.Camera:FindFirstChild("WorldModel")
-	if isFPS then
-		return workspace.Camera.WorldModel.Model.Root.Position
-	else
-		return Players.LocalPlayer.WorldModel.WorldModel.Model.Root.Position
-	end
+    local cam = workspace.CurrentCamera
+    if not cam then return nil end
+
+    local wm = cam:FindFirstChild("WorldModel")
+    if wm and wm:FindFirstChild("Model") and wm.Model:FindFirstChild("Root") then
+        return wm.Model.Root.Position
+    end
+
+    local lp = Players.LocalPlayer
+    if lp and lp:FindFirstChild("WorldModel")
+        and lp.WorldModel:FindFirstChild("WorldModel")
+        and lp.WorldModel.WorldModel:FindFirstChild("Model")
+        and lp.WorldModel.WorldModel.Model:FindFirstChild("Root") then
+
+        return lp.WorldModel.WorldModel.Model.Root.Position
+    end
+
+    return nil
 end
 
+-- ================= COLOR =================
 local function GetDistanceColor(dist)
     local maxDist = 500
     local t = math.clamp(dist / maxDist, 0, 1)
 
     if t < 0.5 then
-        -- hijau → kuning
         local tt = t * 2
-        return 255 * tt, 255, 0
+        return 255 * tt, 255, 0 -- hijau → kuning
     else
-        -- kuning → merah
         local tt = (t - 0.5) * 2
-        return 255, 255 * (1 - tt), 0
+        return 255, 255 * (1 - tt), 0 -- kuning → merah
     end
 end
 
-
 -- ================= CLEAN =================
 local function ClearHighlights(tag)
-	for _, v in ipairs(workspace:GetDescendants()) do
-		local hl = v:FindFirstChild(tag)
-		if hl then hl:Destroy() end
-	end
+    for _, v in ipairs(workspace:GetDescendants()) do
+        local hl = v:FindFirstChild(tag)
+        if hl then hl:Destroy() end
+    end
 end
 
 local function ClearMarker(tag)
-	for male, conn in pairs(MarkerConnections) do
-		if conn then
-			conn:Disconnect()
-		end
+    for male, conn in pairs(MarkerConnections) do
+        if conn then conn:Disconnect() end
 
-		if male then
-			local ui = male:FindFirstChild(tag)
-			if ui then ui:Destroy() end
-		end
-	end
-	table.clear(MarkerConnections)
+        if male then
+            local ui = male:FindFirstChild(tag)
+            if ui then ui:Destroy() end
+        end
+    end
+    table.clear(MarkerConnections)
 end
 
 -- ================= HIGHLIGHT =================
 local function AddHighlight(target, tag, fillColor, outlineColor, fillTransparency)
-	if target:FindFirstChild(tag) then return end
+    if target:FindFirstChild(tag) then return end
 
-	local hl = Instance.new("Highlight")
-	hl.Name = tag
-	hl.Adornee = target
-	hl.FillColor = fillColor
-	hl.FillTransparency = fillTransparency or 0.5
-	hl.OutlineColor = outlineColor
-	hl.OutlineTransparency = 0
-	hl.Parent = target
+    local hl = Instance.new("Highlight")
+    hl.Name = tag
+    hl.Adornee = target
+    hl.FillColor = fillColor
+    hl.FillTransparency = fillTransparency or 0.5
+    hl.OutlineColor = outlineColor
+    hl.OutlineTransparency = 0
+    hl.Parent = target
 end
 
 -- ================= MARKER =================
@@ -83,12 +91,12 @@ local function AddMarker(male, tag)
     local part = Instance.new("Part")
     part.Name = tag
     part.Size = Vector3.new(1,1,1)
-    part.CFrame = CFrame.new(root.Position)
-	part.Massless = true
-	part.Anchored = true
-	part.CanCollide = false
-	part.CanTouch = false
-	part.CanQuery = false
+    part.CFrame = root.CFrame
+    part.Massless = true
+    part.Anchored = true
+    part.CanCollide = false
+    part.CanTouch = false
+    part.CanQuery = false
     part.Transparency = 1
     part.Parent = male
 
@@ -104,7 +112,7 @@ local function AddMarker(male, tag)
     local label = Instance.new("TextLabel")
     label.Name = "DistanceLabel"
     label.Size = UDim2.new(1,0,0,20)
-    label.Position = UDim2.new(0.5,0,0,55)
+    label.Position = UDim2.new(0.5,0,0,40)
     label.AnchorPoint = Vector2.new(0.5,0.5)
     label.BackgroundTransparency = 1
     label.TextColor3 = Color3.new(1,1,1)
@@ -112,16 +120,9 @@ local function AddMarker(male, tag)
     label.Font = Enum.Font.GothamBold
     label.TextSize = 14
     label.RichText = true
-	local dist = (root.Position - GetRootPos()).Magnitude
-	local r, g, b = GetDistanceColor(dist)
-	label.Text = string.format(
-		'<font color="rgb(%d,%d,%d)">[PLAYER]</font>\n<font color="#FFFFFF">%dm</font>',
-		r, g, b,
-		math.floor(dist)
-	)
     label.Parent = billboard
 
-    -- Disconnect lama kalau ada
+    -- disconnect lama
     if MarkerConnections[male] then
         MarkerConnections[male]:Disconnect()
     end
@@ -137,11 +138,40 @@ local function AddMarker(male, tag)
             return
         end
 
+        if not root then return end
         part.CFrame = root.CFrame
 
-        local dist = (root.Position - GetRootPos()).Magnitude
+        local myPos = GetRootPos()
+        if not myPos then return end
+
+        local dist = (root.Position - myPos).Magnitude
+
+        -- 🎨 warna
+        local r, g, b = GetDistanceColor(dist)
+
+        -- 🌫️ fade (100 → 20)
+        local fadeStart = 100
+        local fadeEnd = 20
+
+        local alpha
+        if dist <= fadeEnd then
+            alpha = 1
+        elseif dist >= fadeStart then
+            alpha = 0
+        else
+            alpha = (fadeStart - dist) / (fadeStart - fadeEnd)
+        end
+
+        label.TextTransparency = alpha
+        label.TextStrokeTransparency = math.clamp(alpha + 0.2, 0, 1)
+
+        -- ukuran dinamis (optional feel pro)
+        label.TextSize = math.clamp(18 - (dist / 40), 10, 18)
+
         label.Text = string.format(
-            '<font color="#FF00FF">[PLAYER]</font>\n<font color="#FFFFFF">%dm</font>',
+            '<font color="rgb(%d,%d,%d)">[PLAYER]</font>\n<font color="rgb(%d,%d,%d)">%dm</font>',
+            r, g, b,
+            r, g, b,
             math.floor(dist)
         )
     end)
@@ -149,86 +179,78 @@ local function AddMarker(male, tag)
     MarkerConnections[male] = conn
 end
 
-
 -- ================= SCAN =================
 local function ScanExisting()
-	for _, v in ipairs(workspace:GetDescendants()) do
+    for _, v in ipairs(workspace:GetDescendants()) do
 
-		if ESP_ZOMBIE and v.Name == "Zombie" and v:FindFirstChild("Humanoid") then
-			AddHighlight(v, "ESP_ZOMBIE", Color3.fromRGB(255,0,0), Color3.fromRGB(255,0,0), 1)
-		end
+        if ESP_ZOMBIE and v.Name == "Zombie" and v:FindFirstChild("Humanoid") then
+            AddHighlight(v, "ESP_ZOMBIE", Color3.fromRGB(255,0,0), Color3.fromRGB(255,0,0), 1)
+        end
 
-		if ESP_NPC and v.Name == "Male" and v:FindFirstChild("Humanoid") then
-			AddHighlight(v, "ESP_NPC", Color3.new(1,1,1), Color3.new(1,1,1), 1)
-		end
+        if ESP_NPC and v.Name == "Male" and v:FindFirstChild("Humanoid") then
+            AddHighlight(v, "ESP_NPC", Color3.new(1,1,1), Color3.new(1,1,1), 1)
+        end
 
-		if ESP_PLAYER and v.Name == "Male" and v:FindFirstChild("Humanoid") then
-			AddMarker(v, "ESP_PLAYER")
-			AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
-		end
-	end
+        if ESP_PLAYER and v.Name == "Male" and v:FindFirstChild("Humanoid") then
+            AddMarker(v, "ESP_PLAYER")
+            AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
+        end
+    end
 end
 
 -- ================= WATCHER =================
 local function StartDescendantWatcher()
-	if descendantConn then return end
-	if not (ESP_PLAYER or ESP_NPC or ESP_ZOMBIE) then return end
+    if descendantConn then return end
+    if not (ESP_PLAYER or ESP_NPC or ESP_ZOMBIE) then return end
 
-	descendantConn = workspace.DescendantAdded:Connect(function(v)
+    descendantConn = workspace.DescendantAdded:Connect(function(v)
+        task.defer(function()
 
-		task.defer(function()
+            if ESP_ZOMBIE and v.Name == "Zombie" and v:IsA("Model") then
+                AddHighlight(v, "ESP_ZOMBIE", Color3.fromRGB(255,0,0), Color3.fromRGB(255,0,0), 1)
+            end
 
-			if ESP_ZOMBIE and v.Name == "Zombie" and v:IsA("Model") then
-				AddHighlight(v, "ESP_ZOMBIE", Color3.fromRGB(255,0,0), Color3.fromRGB(255,0,0), 1)
-			end
+            if ESP_NPC and v.Name == "Male" then
+                AddHighlight(v, "ESP_NPC", Color3.new(1,1,1), Color3.new(1,1,1), 1)
+            end
 
-			if ESP_NPC and v.Name == "Male" then
-				AddHighlight(v, "ESP_NPC", Color3.new(1,1,1), Color3.new(1,1,1), 1)
-			end
-
-			if ESP_PLAYER and v.Name == "Male" then
-				AddMarker(v, "ESP_PLAYER")
-				AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
-			end
-		end)
-	end)
+            if ESP_PLAYER and v.Name == "Male" then
+                AddMarker(v, "ESP_PLAYER")
+                AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
+            end
+        end)
+    end)
 end
 
 local function StopWatcher()
-	if not ESP_PLAYER and not ESP_NPC and not ESP_ZOMBIE then
-
-		if descendantConn then
-			descendantConn:Disconnect()
-			descendantConn = nil
-		end
-
-		if worldmodelChildConn then
-			worldmodelChildConn:Disconnect()
-			worldmodelChildConn = nil
-		end
-	end
+    if not ESP_PLAYER and not ESP_NPC and not ESP_ZOMBIE then
+        if descendantConn then
+            descendantConn:Disconnect()
+            descendantConn = nil
+        end
+    end
 end
 
 -- ================= TOGGLE =================
 function EspService:ToggleESP(nama, state)
 
-	if nama == "player" then
-		ESP_PLAYER = state
-	elseif nama == "npc" then
-		ESP_NPC = state
-	elseif nama == "zombie" then
-		ESP_ZOMBIE = state
-	end
+    if nama == "player" then
+        ESP_PLAYER = state
+    elseif nama == "npc" then
+        ESP_NPC = state
+    elseif nama == "zombie" then
+        ESP_ZOMBIE = state
+    end
 
-	if state then
-		StartDescendantWatcher()
-		ScanExisting()
-	else
-		local tag = "ESP_" .. string.upper(nama)
-		ClearHighlights(tag)
-		ClearMarker(tag)
-		StopWatcher()
-	end
+    if state then
+        StartDescendantWatcher()
+        ScanExisting()
+    else
+        local tag = "ESP_" .. string.upper(nama)
+        ClearHighlights(tag)
+        ClearMarker(tag)
+        StopWatcher()
+    end
 end
 
 return EspService
