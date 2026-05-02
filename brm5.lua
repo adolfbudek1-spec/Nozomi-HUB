@@ -70,7 +70,7 @@ local Config = {
 	PLATFORM_SHOW = false,
 	PLATFORM_SPEED = 0.4,
 	PLATFORM_TRANSPARENCY = 0.4,
-	PLATFORM_MATERIAL = Enum.Material.Plastic
+	PLATFORM_MATERIAL = "Plastic"
 }
 
 --[[============== ASIGN MODULE DATA ==============]]
@@ -161,7 +161,7 @@ local PLATFORM_BOX = Tabs.Main:AddRightGroupbox("Moveable Platform", "move-horiz
 	PLATFORM_BOX:AddDropdown("PlatformMaterial", {
 		Text     = "Platform Material",
 		Values   = var.MATERIAL_LIST,
-		Default  = "SmoothPlastic",
+		Default  = Config.PLATFORM_MATERIAL,
 		Tooltip  = "Ganti material platform.",
 		Callback = function(Value)
 			local mat = Enum.Material[Value]
