@@ -54,10 +54,12 @@ local function spawnPlatform()
 	end
 
 	local size = 2048
-	local half = 2
 
-	for x = -half, half do
-		for z = -half, half do
+	-- range besar dunia (bisa kamu adjust)
+	local range = 8
+
+	for x = -range, range do
+		for z = -range, range do
 			local part = Instance.new("Part")
 
 			part.Name = "platform"
@@ -68,9 +70,9 @@ local function spawnPlatform()
 			part.Material = PLATFORM.MATERIAL
 
 			part.Position = Vector3.new(
-				hrp.Position.X + x * size,
+				x * size,
 				hrp.Position.Y - 10,
-				hrp.Position.Z + z * size
+				z * size
 			)
 
 			part.Parent = nozomiDebris
@@ -126,7 +128,7 @@ local function togglePlatform()
 		return
 	end
 
-	if PLATFORM.SPAWNED then
+	if PLATFORM.SPAWNED == true then
 		removePlatform()
 
 		if moveConn then moveConn:Disconnect() moveConn = nil end
