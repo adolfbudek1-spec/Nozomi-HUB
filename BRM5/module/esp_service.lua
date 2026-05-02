@@ -58,107 +58,75 @@ end
 
 -- ================= MARKER =================
 local function AddMarker(male, tag)
-	if not male or male:FindFirstChild(tag) then return end
-	if not (ESP_PLAYER or ESP_NPC or ESP_ZOMBIE) then return end
+    if not male or not male:IsA("Model") then return end
+    if male:FindFirstChild(tag) then return end
 
-	local root = male:FindFirstChild("Root") or male:FindFirstChild("HumanoidRootPart")
-	if not root then return end
+    local root = male:FindFirstChild("Root")
+    if not root then return end
 
-	local humanoid = male:FindFirstChild("Humanoid")
-	if not humanoid then return end
+    local part = Instance.new("Part")
+    part.Name = tag
+    part.Size = Vector3.new(1,1,1)
+    part.CFrame = CFrame.new(root.Position)
+    part.Anchored = true
+    part.CanCollide = false
+    part.Transparency = 1
+    part.Parent = male
 
-	local part = Instance.new("Part")
-	part.Name = tag
-	part.Size = Vector3.new(1, 1, 1)
-	part.CFrame = CFrame.new(root.Position)
-	part.Anchored = true
-	part.CanCollide = false
-	part.CanQuery = false
-	part.CanTouch = false
-	part.Massless = true
-	part.Transparency = 1
-	part.Parent = workspace
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "ObjectiveUI"
+    billboard.Size = UDim2.new(0,200,0,100)
+    billboard.StudsOffset = Vector3.new(0,2,0)
+    billboard.Adornee = part
+    billboard.AlwaysOnTop = true
+    billboard.MaxDistance = math.huge
+    billboard.Parent = part
 
-	local billboard = Instance.new("BillboardGui")
-	billboard.Name = "ObjectiveUI"
-	billboard.Size = UDim2.new(0, 150, 0, 80)
-	billboard.StudsOffset = Vector3.new(0, 3, 0)
-	billboard.Adornee = part
-	billboard.AlwaysOnTop = true
-	billboard.MaxDistance = 500
-	billboard.Parent = part
+    local label = Instance.new("TextLabel")
+    label.Name = "DistanceLabel"
+    label.Size = UDim2.new(1,0,0,40)
+    label.Position = UDim2.new(0.5,0,0,55)
+    label.AnchorPoint = Vector2.new(0.5,0.5)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.new(1,1,1)
+    label.TextStrokeTransparency = 0
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 14
+    label.RichText = true
+    label.Text = '<font color="#FFFF00">[PLAYER]</font>\n<font color="#FFFFFF">--m</font>'
+    label.Parent = billboard
 
-	local container = Instance.new("Frame")
-	container.Parent = billboard
-	container.BackgroundTransparency = 1
-	container.Size = UDim2.new(1, 0, 1, 0)
+    -- Disconnect lama kalau ada
+    if MarkerConnections[male] then
+        MarkerConnections[male]:Disconnect()
+    end
 
-	local layout = Instance.new("UIListLayout")
-	layout.Parent = container
-	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	layout.VerticalAlignment = Enum.VerticalAlignment.Center
-	layout.SortOrder = Enum.SortOrder.LayoutOrder
+    local conn
+    conn = RunService.RenderStepped:Connect(function()
+        if not male.Parent then
+            part:Destroy()
+            if MarkerConnections[male] then
+                MarkerConnections[male]:Disconnect()
+                MarkerConnections[male] = nil
+            end
+            return
+        end
 
-	local distance = Instance.new("TextLabel")
-	distance.Parent = container
-	distance.BackgroundTransparency = 1
-	distance.Size = UDim2.new(1, 0, 0, 25)
-	distance.TextScaled = false
-	distance.TextSize = 14
-	distance.TextColor3 = Color3.fromRGB(0, 255, 255)
-	distance.Font = Enum.Font.GothamBold
-	distance.Text = "--m"
+        local root = male:FindFirstChild("Root")
+        if not root then return end
 
-	local healthBg = Instance.new("Frame")
-	healthBg.Parent = container
-	healthBg.Size = UDim2.new(1, 0, 0, 10)
-	healthBg.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+        part.CFrame = root.CFrame
 
-	local healthBar = Instance.new("Frame")
-	healthBar.Parent = healthBg
-	healthBar.Size = UDim2.new(1, 0, 1, 0)
-	healthBar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+        local dist = (root.Position - GetRootPos()).Magnitude
+        label.Text = string.format(
+            '<font color="#FF00FF">[PLAYER]</font>\n<font color="#FFFFFF">%dm</font>',
+            math.floor(dist)
+        )
+    end)
 
-	-- disconnect old
-	if MarkerConnections[male] then
-		MarkerConnections[male]:Disconnect()
-	end
-
-	local conn
-	conn = RunService.RenderStepped:Connect(function()
-
-		-- ❗ HARD STOP IF ESP OFF
-		if not ESP_PLAYER and not ESP_NPC and not ESP_ZOMBIE then
-			part:Destroy()
-			conn:Disconnect()
-			MarkerConnections[male] = nil
-			return
-		end
-
-		if not male or not male.Parent then
-			part:Destroy()
-			conn:Disconnect()
-			MarkerConnections[male] = nil
-			return
-		end
-
-		local rootNow = male:FindFirstChild("Root") or male:FindFirstChild("HumanoidRootPart")
-		if not rootNow then return end
-
-		part.CFrame = CFrame.new(rootNow.Position)
-
-		local dist = (rootNow.Position - GetRootPos()).Magnitude
-		distance.Text = math.floor(dist) .. "m"
-
-		if humanoid and humanoid.MaxHealth > 0 then
-			local hp = humanoid.Health / humanoid.MaxHealth
-			healthBar.Size = UDim2.new(hp, 0, 1, 0)
-			healthBar.BackgroundColor3 = Color3.fromRGB(255 * (1 - hp), 255 * hp, 0)
-		end
-	end)
-
-	MarkerConnections[male] = conn
+    MarkerConnections[male] = conn
 end
+
 
 -- ================= SCAN =================
 local function ScanExisting()
