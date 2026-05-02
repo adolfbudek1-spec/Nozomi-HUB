@@ -73,87 +73,6 @@ local Config = {
 	PLATFORM_MATERIAL = Enum.Material.Plastic,
 }
 
-
---[[============== PLATFORM FUNCTIONS ==============]]
-
-local moveDir = 0
-local moveConn, inputBeganConn, inputEndedConn
-
-local function ToggleMoveablePlatform()
-	if moveConn then return end
-
-	inputBeganConn = UIS.InputBegan:Connect(function(i, g)
-		if g then return end
-		if i.KeyCode == Enum.KeyCode.J then
-			moveDir = 1
-		elseif i.KeyCode == Enum.KeyCode.K then
-			moveDir = -1
-		end
-	end)
-
-	inputEndedConn = UIS.InputEnded:Connect(function(i)
-		if i.KeyCode == Enum.KeyCode.J or i.KeyCode == Enum.KeyCode.K then
-			moveDir = 0
-		end
-	end)
-
-	moveConn = RS.RenderStepped:Connect(function()
-		if moveDir ~= 0 then
-			for _, part in ipairs(Config.PLATFORM) do
-				if part and part.Parent then
-					part.Position += Vector3.new(0, Config.PLATFORM_SPEED * moveDir, 0)
-				end
-			end
-		end
-	end)
-end
-
-local function togglePlatform()
-	local hrp = GetRoot()
-	if not hrp then
-		Library:Notify("Root / HRP tidak ditemukan!", 3)
-		return
-	end
-
-	local function removePlatform()
-		for _, part in ipairs(Config.PLATFORM) do
-			if part and part.Parent then part:Destroy() end
-		end
-		Config.PLATFORM = {}
-	end
-
-	local function spawnPlatform()
-		for x = 1, 5 do
-			for z = 1, 5 do
-				local part = Instance.new("Part")
-				part.Name = "platform"
-				part.Size = Vector3.new(2048, 1, 2048)
-				part.Anchored = true
-				part.Transparency = Config.PLATFORM_TRANSPARENCY
-				part.Material = Config.PLATFORM_MATERIAL
-				part.Position = Vector3.new(
-					hrp.Position.X + (x - 1) * 2048,
-					hrp.Position.Y - 10,
-					hrp.Position.Z + (z - 1) * 2048
-				)
-				part.Parent = workspace
-				table.insert(Config.PLATFORM, part)
-			end
-		end
-	end
-
-	if Config.PLATFORM_SPAWNED then
-		removePlatform()
-		Config.PLATFORM_SPAWNED = false
-	else
-		spawnPlatform()
-		Config.PLATFORM_SPAWNED = true
-		ToggleMoveablePlatform()
-	end
-end
-
-
-
 --[[============== REGISTERED TABS ==============]]
 local Tabs = {
 	Main     = Window:AddTab("Main", "user"),
@@ -232,7 +151,7 @@ local PLATFORM_BOX = Tabs.Main:AddRightGroupbox("Moveable Platform", "move-horiz
 		Max      = 1.0,
 		Rounding = 1,
 		Callback = function(Value)
-			MoveablePartModule:setValue("speed", Value)
+			MoveablePartModule:setValue("transparency", Value)
 		end,
 	})
 
@@ -244,12 +163,7 @@ local PLATFORM_BOX = Tabs.Main:AddRightGroupbox("Moveable Platform", "move-horiz
 		Callback = function(Value)
 			local mat = Enum.Material[Value]
 			if mat then
-				Config.PLATFORM_MATERIAL = mat
-				for _, part in ipairs(Config.PLATFORM) do
-					if part and part.Parent then
-						part.Material = mat
-					end
-				end
+				MoveablePartModule:setValue("material", mat)
 			end
 		end,
 	})
@@ -260,7 +174,7 @@ local MAP_BOX = Tabs.Map:AddLeftGroupbox("Key Location", "map-pin")
 	local keyLocationSelected = {}
 	local function GetDropdownList()
 		local list = KeyLocationModule:GetAllKeyName()
-		table.insert(list, 1, "All") -- taruh paling atas
+		table.insert(list, 1, "Select All") -- taruh paling atas
 		return list
 	end
 
@@ -283,7 +197,7 @@ local MAP_BOX = Tabs.Map:AddLeftGroupbox("Key Location", "map-pin")
 			end
 
 			for name, state in pairs(val) do
-				if state and name ~= "All" then
+				if state and name ~= "Select All" then
 					table.insert(keyLocationSelected, name)
 				end
 			end

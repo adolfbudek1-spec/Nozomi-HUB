@@ -3,8 +3,10 @@ local MoveablePart = {}
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
+
 local Player = Players.LocalPlayer
 
+-- Folder safe
 local nozomiDebris = workspace:FindFirstChild("_nozomiDebris")
 if not nozomiDebris then
 	nozomiDebris = Instance.new("Folder")
@@ -12,7 +14,7 @@ if not nozomiDebris then
 	nozomiDebris.Parent = workspace
 end
 
-local platform = {}
+-- State
 local moveDir = 0
 local moveConn, inputBeganConn, inputEndedConn
 
@@ -23,6 +25,7 @@ local PLATFORM = {
 	MATERIAL = Enum.Material.Plastic
 }
 
+-- Get root
 local function GetRoot()
 	local wm = Player:FindFirstChild("WorldModel")
 	if not wm then return nil end
@@ -42,15 +45,7 @@ local function GetRoot()
 	return nil
 end
 
-local function removePlatform()
-	for _, part in ipairs(platform) do
-		if part then
-			part:Destroy()
-		end
-	end
-	platform = {}
-end
-
+-- SPAWN PLATFORM
 local function spawnPlatform()
 	local hrp = GetRoot()
 	if not hrp then
@@ -59,15 +54,16 @@ local function spawnPlatform()
 	end
 
 	local size = 2048
-	local halfX, halfZ = 2, 2
+	local half = 2
 
-	for x = -halfX, halfX do
-		for z = -halfZ, halfZ do
+	for x = -half, half do
+		for z = -half, half do
 			local part = Instance.new("Part")
 
 			part.Name = "platform"
 			part.Size = Vector3.new(size, 1, size)
 			part.Anchored = true
+			part.CanCollide = true
 			part.Transparency = PLATFORM.TRANSPARENCY
 			part.Material = PLATFORM.MATERIAL
 
@@ -78,12 +74,21 @@ local function spawnPlatform()
 			)
 
 			part.Parent = nozomiDebris
-			table.insert(platform, part)
 		end
 	end
 end
 
-local function ToggleMoveablePlatform()
+-- REMOVE PLATFORM
+local function removePlatform()
+	for _, part in ipairs(nozomiDebris:GetChildren()) do
+		if part.Name == "platform" then
+			part:Destroy()
+		end
+	end
+end
+
+-- MOVE SYSTEM
+local function startMovement()
 	if moveConn then return end
 
 	inputBeganConn = UserInputService.InputBegan:Connect(function(input, gp)
@@ -104,8 +109,8 @@ local function ToggleMoveablePlatform()
 
 	moveConn = RunService.RenderStepped:Connect(function()
 		if moveDir ~= 0 then
-			for _, part in ipairs(platform) do
-				if part then
+			for _, part in ipairs(nozomiDebris:GetChildren()) do
+				if part.Name == "platform" then
 					part.Position += Vector3.new(0, PLATFORM.SPEED * moveDir, 0)
 				end
 			end
@@ -113,6 +118,7 @@ local function ToggleMoveablePlatform()
 	end)
 end
 
+-- TOGGLE MAIN
 function MoveablePart:togglePlatform()
 	local hrp = GetRoot()
 	if not hrp then
@@ -124,17 +130,18 @@ function MoveablePart:togglePlatform()
 		removePlatform()
 
 		if moveConn then moveConn:Disconnect() moveConn = nil end
-		if inputBeganConn then inputBeganConn:Disconnect() end
-		if inputEndedConn then inputEndedConn:Disconnect() end
+		if inputBeganConn then inputBeganConn:Disconnect() inputBeganConn = nil end
+		if inputEndedConn then inputEndedConn:Disconnect() inputEndedConn = nil end
 
 		PLATFORM.SPAWNED = false
 	else
 		spawnPlatform()
+		startMovement()
 		PLATFORM.SPAWNED = true
-		ToggleMoveablePlatform()
 	end
 end
 
+-- SETTER SYSTEM
 function MoveablePart:setValue(name, value)
 	if name == "spawn" then
 		PLATFORM.SPAWNED = value
