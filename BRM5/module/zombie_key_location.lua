@@ -114,11 +114,11 @@ function KeyLocationService:ShowLocations(selectedList)
 			if data.part and data.label then
 				local dist = math.floor((rootPos - data.pos).Magnitude)
 				data.label.Text = string.format(
-		'<font color="#FF8C00">[%s]</font>\n<b>%s</b>\n<font color="#FFFFFF">--m</font>',
-					data.category,
-					data.name,
-					dist
-				)
+				'<font color="#FF8C00">[%s]</font>\n<b>%s</b>\n<font color="#FFFFFF">%dm</font>',
+				data.category,
+				data.name,
+				dist
+			)
 			end
 		end
 	end)
