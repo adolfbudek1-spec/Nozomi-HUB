@@ -219,7 +219,7 @@ local function ScanExisting()
 
         if ESP_PLAYER and v.Name == "Male" and v:FindFirstChild("Humanoid") then
             if ESP_PLAYER_MARKER then
-                AddMarker(v, "ESP_PLAYER")
+                AddMarker(v, "ESP_PLAYER_MARKER")
             end
             AddHighlight(v, "ESP_PLAYER", Color3.new(1, 1, 1), Color3.new(1, 1, 1), 1)
         end
@@ -244,7 +244,7 @@ local function StartDescendantWatcher()
 
             if ESP_PLAYER and v.Name == "Male" and v:FindFirstChild("Humanoid") then
                 if ESP_PLAYER_MARKER then
-                    AddMarker(v, "ESP_PLAYER")
+                    AddMarker(v, "ESP_PLAYER_MARKER")
                 end
                 AddHighlight(v, "ESP_PLAYER", Color3.new(1, 1, 1), Color3.new(1, 1, 1), 1)
             end
@@ -264,7 +264,7 @@ end
 -- ================= SETTINGS =================
 function EspService:SetPlayerMarker(state)
     ESP_PLAYER_MARKER = state
-    ClearMarker("ESP_PLAYER")
+    ClearMarker("ESP_PLAYER_MARKER")
     if ESP_PLAYER then
         ScanExisting()
     end

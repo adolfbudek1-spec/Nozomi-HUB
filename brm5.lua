@@ -148,11 +148,11 @@ local ESP_GROUP_BOX = Tabs.Main:AddLeftGroupbox("ESP", "user")
 		end,
 	})
 
-	ESP_GROUP_BOX:AddSlider("PlatformSpeedSlider", {
+	ESP_GROUP_BOX:AddSlider("EspLabelDistance", {
 		Text     = "Distance",
 		Default  = Config.ESP_PLAYER_LABEL_DISTANCE,
-		Min      = 100,
-		Max      = 2000,
+		Min      = 1,
+		Max      = 9999,
 		Rounding = 0,
 		Callback = function(Value)
 			ESPModule:SetMaxDistance(Value)
