@@ -105,7 +105,7 @@ local function AddMarker(male, tag)
 
     local billboard = Instance.new("BillboardGui")
     billboard.Name = "ObjectiveUI"
-    billboard.Size = UDim2.new(0,130,0,60)
+    billboard.Size = UDim2.new(7,0,3,0)
     billboard.StudsOffset = Vector3.new(0,2,0)
     billboard.Adornee = part
     billboard.AlwaysOnTop = true
