@@ -53,11 +53,35 @@ local function GetRootPos()
 	end
 end
 
+local function CreateSafePart()
+
+	local SIZE = 2048
+	local RANGE = 16384
+	local debris = workspace:FindFirstChild("_nozomiDebris")
+	local safePart = debris and debris:FindFirstChild("_safePart")
+	if safePart then
+		return
+	end
+
+	for x = -RANGE, RANGE, SIZE do
+		for z = -RANGE, RANGE, SIZE do
+			local part = Instance.new("Part")
+			part.Name = "_safePart"
+			part.Size = Vector3.new(SIZE, 1, SIZE)
+			part.Position = Vector3.new(x, 8, z)
+			part.Anchored = true
+			part.Parent = debris
+		end
+	end
+end
+
+CreateSafePart()
+
 local Window = Library:CreateWindow({
 	Title = "Nozomi HUB",
 	Footer = "version: 1.3a | Map: " .. GetGameMode(),
 	NotifySide = "Right",
-	Theme = "Dark" -- Many libraries offer presets like "Dark", "Light", or "Midnight"
+	Theme = "Midnight"
 })
 
 --[[============== CONFIGURATION ==============]]
@@ -126,7 +150,6 @@ local ESP_GROUP_BOX = Tabs.Main:AddLeftGroupbox("ESP", "user")
 			--LogsUIModule:Set("ESP NPC", Value)
 		end,
 	})
-	ESP_GROUP_BOX:AddDivider()
 	ESP_GROUP_BOX:AddToggle("EspPlayer", {
 		Text     = "Toggle ESP Player",
 		Tooltip  = "Highlight all players.",
@@ -149,7 +172,7 @@ local ESP_GROUP_BOX = Tabs.Main:AddLeftGroupbox("ESP", "user")
 	})
 
 	ESP_GROUP_BOX:AddSlider("EspLabelDistance", {
-		Text     = "Distance",
+		Text     = "Label Distance",
 		Default  = Config.ESP_PLAYER_LABEL_DISTANCE,
 		Min      = 1,
 		Max      = 9999,

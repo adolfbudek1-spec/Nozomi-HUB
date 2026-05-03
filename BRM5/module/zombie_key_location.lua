@@ -45,18 +45,18 @@ local function AddMarker(name, pos, category, color)
 
 	local billboard = Instance.new("BillboardGui")
 	billboard.Name = "ObjectiveUI"
-	billboard.Size = UDim2.new(0, 200, 0, 100)
-	billboard.StudsOffset = Vector3.new(0, 2, 0)
+	billboard.Size = UDim2.new(0, 80, 0, 40)
+	billboard.StudsOffsetWorldSpace = Vector3.new(0, 2.5, 0)
 	billboard.Adornee = part
 	billboard.AlwaysOnTop = true
 	billboard.Parent = part
 
-		-- Diamond icon
+	-- Diamond icon
 	local icon = Instance.new("Frame")
 	icon.Name = "Icon"
-	icon.Size = UDim2.new(0, 15, 0, 15)
-	icon.Position = UDim2.new(0.5, 0, 0, 20)
-	icon.AnchorPoint = Vector2.new(0.5, 0.5)
+	diamond.Size = UDim2.new(1, 0, 0, 14)
+	diamond.Position = UDim2.new(0, 0, 0, 0)
+	diamond.AnchorPoint = Vector2.new(0, 0)
 	icon.BackgroundColor3 = color or Color3.fromRGB(255, 140, 0)
 	icon.Rotation = 45
 	icon.BorderSizePixel = 2
@@ -66,9 +66,9 @@ local function AddMarker(name, pos, category, color)
 	-- Label (category + name + distance placeholder)
 	local label = Instance.new("TextLabel")
 	label.Name = "DistanceLabel"
-	label.Size = UDim2.new(1, 0, 0, 40)
-	label.Position = UDim2.new(0.5, 0, 0, 55)
-	label.AnchorPoint = Vector2.new(0.5, 0.5)
+	label.Size = UDim2.new(1, 0, 0, 14)
+	label.Position = UDim2.new(0, 0, 0, 13)
+	label.AnchorPoint = Vector2.new(0, 0)
 	label.BackgroundTransparency = 1
 	label.TextColor3 = Color3.new(1, 1, 1)
 	label.TextStrokeTransparency = 0
