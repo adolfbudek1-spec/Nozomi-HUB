@@ -54,9 +54,9 @@ local function AddMarker(name, pos, category, color)
 	-- Diamond icon
 	local icon = Instance.new("Frame")
 	icon.Name = "Icon"
-	diamond.Size = UDim2.new(1, 0, 0, 14)
-	diamond.Position = UDim2.new(0, 0, 0, 0)
-	diamond.AnchorPoint = Vector2.new(0, 0)
+	icon.Size = UDim2.new(1, 0, 0, 14)
+	icon.Position = UDim2.new(0, 0, 0, 0)
+	icon.AnchorPoint = Vector2.new(0, 0)
 	icon.BackgroundColor3 = color or Color3.fromRGB(255, 140, 0)
 	icon.Rotation = 45
 	icon.BorderSizePixel = 2
