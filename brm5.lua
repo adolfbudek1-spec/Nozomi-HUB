@@ -81,7 +81,7 @@ local Window = Library:CreateWindow({
 	Title = "Nozomi HUB",
 	Footer = "version: 1.3a | Map: " .. GetGameMode(),
 	NotifySide = "Right",
-	Theme = "Dark"
+	Theme = "Dark" -- Many libraries offer presets like "Dark", "Light", or "Midnight"
 })
 
 --[[============== CONFIGURATION ==============]]

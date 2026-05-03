@@ -45,37 +45,36 @@ local function AddMarker(name, pos, category, color)
 
 	local billboard = Instance.new("BillboardGui")
 	billboard.Name = "ObjectiveUI"
-	billboard.Size = UDim2.new(0, 160, 0, 80)   -- lebih compact
-	billboard.StudsOffset = Vector3.new(0, 3, 0)
+	billboard.Size = UDim2.new(0, 200, 0, 100)
+	billboard.StudsOffset = Vector3.new(0, 2, 0)
 	billboard.Adornee = part
 	billboard.AlwaysOnTop = true
 	billboard.Parent = part
 
-	-- Diamond icon
+		-- Diamond icon
 	local icon = Instance.new("Frame")
 	icon.Name = "Icon"
-	icon.Size = UDim2.new(0, 14, 0, 14)
-	icon.Position = UDim2.new(0.5, 0, 0, 0)     -- di atas, pakai AnchorPoint
-	icon.AnchorPoint = Vector2.new(0.5, 0)
+	icon.Size = UDim2.new(0, 15, 0, 15)
+	icon.Position = UDim2.new(0.5, 0, 0, 20)
+	icon.AnchorPoint = Vector2.new(0.5, 0.5)
 	icon.BackgroundColor3 = color or Color3.fromRGB(255, 140, 0)
 	icon.Rotation = 45
 	icon.BorderSizePixel = 2
 	icon.BorderColor3 = Color3.new(0, 0, 0)
 	icon.Parent = billboard
 
-	-- Label (category + name + distance)
+	-- Label (category + name + distance placeholder)
 	local label = Instance.new("TextLabel")
 	label.Name = "DistanceLabel"
-	label.Size = UDim2.new(1, 0, 1, -20)        -- isi sisa ruang di bawah icon
-	label.Position = UDim2.new(0, 0, 0, 20)     -- mulai tepat di bawah icon
-	label.AnchorPoint = Vector2.new(0, 0)
+	label.Size = UDim2.new(1, 0, 0, 40)
+	label.Position = UDim2.new(0.5, 0, 0, 55)
+	label.AnchorPoint = Vector2.new(0.5, 0.5)
 	label.BackgroundTransparency = 1
 	label.TextColor3 = Color3.new(1, 1, 1)
 	label.TextStrokeTransparency = 0
 	label.Font = Enum.Font.GothamBold
-	label.TextSize = 13
+	label.TextSize = 14
 	label.RichText = true
-	label.TextYAlignment = Enum.TextYAlignment.Top
 	label.Text = string.format(
 		'<font color="#FF8C00">[%s]</font>\n<b>%s</b>\n<font color="#FFFFFF">--m</font>',
 		category, name
