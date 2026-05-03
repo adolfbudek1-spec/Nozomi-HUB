@@ -2,7 +2,7 @@ local EspService = {}
 
 local ESP_PLAYER = false
 local ESP_PLAYER_MARKER = false
-local ESP_PLAYER_MAX_DISTANCE = 300 -- 🔥 setting max distance
+local ESP_PLAYER_MAX_DISTANCE = 300
 
 local ESP_NPC = false
 local ESP_ZOMBIE = false
@@ -28,7 +28,6 @@ local function GetRootPos()
         and lp.WorldModel:FindFirstChild("WorldModel")
         and lp.WorldModel.WorldModel:FindFirstChild("Model")
         and lp.WorldModel.WorldModel.Model:FindFirstChild("Root") then
-
         return lp.WorldModel.WorldModel.Model.Root.Position
     end
 
@@ -60,7 +59,6 @@ end
 local function ClearMarker(tag)
     for male, conn in pairs(MarkerConnections) do
         if conn then conn:Disconnect() end
-
         if male then
             local ui = male:FindFirstChild(tag)
             if ui then ui:Destroy() end
@@ -93,7 +91,7 @@ local function AddMarker(male, tag)
 
     local part = Instance.new("Part")
     part.Name = tag
-    part.Size = Vector3.new(1,1,1)
+    part.Size = Vector3.new(1, 1, 1)
     part.CFrame = root.CFrame
     part.Massless = true
     part.Anchored = true
@@ -103,27 +101,65 @@ local function AddMarker(male, tag)
     part.Transparency = 1
     part.Parent = male
 
+    -- Billboard ukuran FIXED (tidak scale dengan jarak)
     local billboard = Instance.new("BillboardGui")
     billboard.Name = "ObjectiveUI"
-    billboard.Size = UDim2.new(7,0,3,0)
-    billboard.StudsOffset = Vector3.new(0,2,0)
+    billboard.Size = UDim2.new(0, 80, 0, 40)   -- pixel fixed, tidak ikut zoom
+    billboard.StudsOffsetWorldSpace = Vector3.new(0, 2.5, 0)
     billboard.Adornee = part
     billboard.AlwaysOnTop = true
-    billboard.MaxDistance = math.huge
+    billboard.MaxDistance = ESP_PLAYER_MAX_DISTANCE
+    billboard.ResetOnSpawn = false
     billboard.Parent = part
 
-    local label = Instance.new("TextLabel")
-    label.Name = "DistanceLabel"
-    label.Size = UDim2.new(1,0,0,20)
-    label.Position = UDim2.new(0.5,0,0,40)
-    label.AnchorPoint = Vector2.new(0.5,0.5)
-    label.BackgroundTransparency = 1
-    label.TextColor3 = Color3.new(1,1,1)
-    label.TextStrokeTransparency = 0
-    label.Font = Enum.Font.GothamBold
-    label.TextSize = 14
-    label.RichText = true
-    label.Parent = billboard
+    -- Diamond icon ♦
+    local diamond = Instance.new("TextLabel")
+    diamond.Name = "DiamondIcon"
+    diamond.Size = UDim2.new(1, 0, 0, 14)
+    diamond.Position = UDim2.new(0, 0, 0, 0)
+    diamond.AnchorPoint = Vector2.new(0, 0)
+    diamond.BackgroundTransparency = 1
+    diamond.TextColor3 = Color3.fromRGB(255, 50, 50)
+    diamond.TextStrokeTransparency = 0
+    diamond.TextStrokeColor3 = Color3.new(0, 0, 0)
+    diamond.Font = Enum.Font.GothamBold
+    diamond.TextSize = 12
+    diamond.Text = "♦"
+    diamond.TextXAlignment = Enum.TextXAlignment.Center
+    diamond.Parent = billboard
+
+    -- Label [PLAYER]
+    local labelPlayer = Instance.new("TextLabel")
+    labelPlayer.Name = "PlayerLabel"
+    labelPlayer.Size = UDim2.new(1, 0, 0, 14)
+    labelPlayer.Position = UDim2.new(0, 0, 0, 13)
+    labelPlayer.AnchorPoint = Vector2.new(0, 0)
+    labelPlayer.BackgroundTransparency = 1
+    labelPlayer.TextColor3 = Color3.fromRGB(255, 255, 255)
+    labelPlayer.TextStrokeTransparency = 0
+    labelPlayer.TextStrokeColor3 = Color3.new(0, 0, 0)
+    labelPlayer.Font = Enum.Font.GothamBold
+    labelPlayer.TextSize = 11
+    labelPlayer.Text = "[PLAYER]"
+    labelPlayer.TextXAlignment = Enum.TextXAlignment.Center
+    labelPlayer.Parent = billboard
+
+    -- Label distance
+    local labelDist = Instance.new("TextLabel")
+    labelDist.Name = "DistanceLabel"
+    labelDist.Size = UDim2.new(1, 0, 0, 14)
+    labelDist.Position = UDim2.new(0, 0, 0, 26)
+    labelDist.AnchorPoint = Vector2.new(0, 0)
+    labelDist.BackgroundTransparency = 1
+    labelDist.TextColor3 = Color3.fromRGB(255, 255, 255)
+    labelDist.TextStrokeTransparency = 0
+    labelDist.TextStrokeColor3 = Color3.new(0, 0, 0)
+    labelDist.Font = Enum.Font.GothamBold
+    labelDist.TextSize = 11
+    labelDist.RichText = true
+    labelDist.Text = "0m"
+    labelDist.TextXAlignment = Enum.TextXAlignment.Center
+    labelDist.Parent = billboard
 
     if MarkerConnections[male] then
         MarkerConnections[male]:Disconnect()
@@ -147,41 +183,23 @@ local function AddMarker(male, tag)
 
         local dist = (root.Position - myPos).Magnitude
 
-        -- 🔥 MAX DISTANCE CHECK
+        -- Max distance check
         if dist > ESP_PLAYER_MAX_DISTANCE then
-            label.Visible = false
+            billboard.Enabled = false
             return
         else
-            label.Visible = true
+            billboard.Enabled = true
         end
 
-        -- 🎨 warna
+        -- Warna berdasarkan jarak
         local r, g, b = GetDistanceColor(dist)
+        local col = Color3.fromRGB(r, g, b)
 
-        -- 🌫️ fade
-        local fadeStart = 100
-        local fadeEnd = 20
+        diamond.TextColor3 = Color3.fromRGB(255, 50, 50) -- diamond tetap merah
+        labelPlayer.TextColor3 = col
+        labelDist.TextColor3 = col
 
-        local alpha
-        if dist <= fadeEnd then
-            alpha = 1
-        elseif dist >= fadeStart then
-            alpha = 0
-        else
-            alpha = (fadeStart - dist) / (fadeStart - fadeEnd)
-        end
-
-        label.TextTransparency = alpha
-        label.TextStrokeTransparency = math.clamp(alpha + 0.2, 0, 1)
-
-        label.TextSize = math.clamp(18 - (dist / 40), 10, 18)
-
-        label.Text = string.format(
-            '<font color="rgb(%d,%d,%d)">[PLAYER]</font>\n<font color="rgb(%d,%d,%d)">%dm</font>',
-            r, g, b,
-            r, g, b,
-            math.floor(dist)
-        )
+        labelDist.Text = string.format("%dm", math.floor(dist))
     end)
 
     MarkerConnections[male] = conn
@@ -192,18 +210,18 @@ local function ScanExisting()
     for _, v in ipairs(workspace:GetDescendants()) do
 
         if ESP_ZOMBIE and v.Name == "Zombie" and v:FindFirstChild("Humanoid") then
-            AddHighlight(v, "ESP_ZOMBIE", Color3.fromRGB(255,0,0), Color3.fromRGB(255,0,0), 1)
+            AddHighlight(v, "ESP_ZOMBIE", Color3.fromRGB(255, 0, 0), Color3.fromRGB(255, 0, 0), 1)
         end
 
         if ESP_NPC and v.Name == "Male" and v:FindFirstChild("Humanoid") then
-            AddHighlight(v, "ESP_NPC", Color3.new(1,1,1), Color3.new(1,1,1), 1)
+            AddHighlight(v, "ESP_NPC", Color3.new(1, 1, 1), Color3.new(1, 1, 1), 1)
         end
 
         if ESP_PLAYER and v.Name == "Male" and v:FindFirstChild("Humanoid") then
             if ESP_PLAYER_MARKER then
                 AddMarker(v, "ESP_PLAYER")
             end
-            AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
+            AddHighlight(v, "ESP_PLAYER", Color3.new(1, 1, 1), Color3.new(1, 1, 1), 1)
         end
     end
 end
@@ -217,18 +235,18 @@ local function StartDescendantWatcher()
         task.defer(function()
 
             if ESP_ZOMBIE and v.Name == "Zombie" and v:IsA("Model") then
-                AddHighlight(v, "ESP_ZOMBIE", Color3.fromRGB(255,0,0), Color3.fromRGB(255,0,0), 1)
+                AddHighlight(v, "ESP_ZOMBIE", Color3.fromRGB(255, 0, 0), Color3.fromRGB(255, 0, 0), 1)
             end
 
             if ESP_NPC and v.Name == "Male" then
-                AddHighlight(v, "ESP_NPC", Color3.new(1,1,1), Color3.new(1,1,1), 1)
+                AddHighlight(v, "ESP_NPC", Color3.new(1, 1, 1), Color3.new(1, 1, 1), 1)
             end
 
             if ESP_PLAYER and v.Name == "Male" and v:FindFirstChild("Humanoid") then
                 if ESP_PLAYER_MARKER then
                     AddMarker(v, "ESP_PLAYER")
                 end
-                AddHighlight(v, "ESP_PLAYER", Color3.new(1,1,1), Color3.new(1,1,1), 1)
+                AddHighlight(v, "ESP_PLAYER", Color3.new(1, 1, 1), Color3.new(1, 1, 1), 1)
             end
         end)
     end)
@@ -247,7 +265,6 @@ end
 function EspService:SetPlayerMarker(state)
     ESP_PLAYER_MARKER = state
     ClearMarker("ESP_PLAYER")
-
     if ESP_PLAYER then
         ScanExisting()
     end
@@ -259,7 +276,6 @@ end
 
 -- ================= TOGGLE =================
 function EspService:ToggleESP(nama, state)
-
     if nama == "player" then
         ESP_PLAYER = state
     elseif nama == "npc" then
