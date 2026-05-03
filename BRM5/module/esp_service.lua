@@ -119,7 +119,7 @@ local function AddMarker(male, tag)
     diamond.Position = UDim2.new(0, 0, 0, 0)
     diamond.AnchorPoint = Vector2.new(0, 0)
     diamond.BackgroundTransparency = 1
-    diamond.TextColor3 = Color3.fromRGB(255, 50, 50)
+    diamond.TextColor3 = Color3.fromRGB(255, 255, 50)
     diamond.TextStrokeTransparency = 0
     diamond.TextStrokeColor3 = Color3.new(0, 0, 0)
     diamond.Font = Enum.Font.GothamBold
@@ -195,7 +195,7 @@ local function AddMarker(male, tag)
         local r, g, b = GetDistanceColor(dist)
         local col = Color3.fromRGB(r, g, b)
 
-        diamond.TextColor3 = Color3.fromRGB(255, 50, 50) -- diamond tetap merah
+        diamond.TextColor3 = col -- diamond tetap merah
         labelPlayer.TextColor3 = col
         labelDist.TextColor3 = col
 
