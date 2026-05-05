@@ -32,6 +32,7 @@ local Window = Velvet:CreateWindow({
     ToggleIcon = "sparkles",
 })
 
+--======================== [[ SETUP ADDONS ]] ========================--
 Velvet:SetIcons(Icons)
 NotifHistory:Bind(Velvet, Window)
 

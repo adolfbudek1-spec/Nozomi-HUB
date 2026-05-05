@@ -216,10 +216,7 @@ end
 -- ============================================================
 --  START UPDATER
 -- ============================================================
-function esp:startUpdater()
-    -- BUG #5 FIX: guard lama "if self.connection then return end" selalu
-    -- truthy karena self.connection diinisialisasi sebagai {} (table kosong).
-    -- Sekarang cek apakah sudah ada koneksi heartbeat aktif dengan flag terpisah.
+function esp:startUpdater(config)
     if self._updaterRunning then return end
     self._updaterRunning = true
 
@@ -227,6 +224,29 @@ function esp:startUpdater()
         local myPos = GetRootPos()
         if not myPos then return end
 
+        -- deteksi perubahan warna & max distance
+        local colorChanged = config.espColor ~= self._lastEspColor
+        local distChanged  = config.espMaxDistance ~= self._lastMaxDistance
+
+        if colorChanged or distChanged then
+            self._lastEspColor      = config.espColor
+            self._lastMaxDistance   = config.espMaxDistance
+
+            for _, data in pairs(self.trackedRoots) do
+                if colorChanged then
+                    local label = data.billboard:FindFirstChild("PlayerLabel")
+                    if label then
+                        label.TextColor3 = config.espColor
+                    end
+                end
+
+                if distChanged then
+                    data.billboard.MaxDistance = config.espMaxDistance
+                end
+            end
+        end
+
+        -- update posisi & jarak
         for root, data in pairs(self.trackedRoots) do
             if not root or not root.Parent then
                 if data.part then data.part:Destroy() end
@@ -234,31 +254,19 @@ function esp:startUpdater()
                 continue
             end
 
-            local part = data.part
-            local billboard = data.billboard
-
-            -- update posisi box agar mengikuti root
-            part.CFrame = root.CFrame
+            data.part.CFrame = root.CFrame
 
             local dist = (root.Position - myPos).Magnitude
 
-            if dist > (billboard.MaxDistance or 300) then
-                billboard.Enabled = false
-            else
-                billboard.Enabled = true
-            end
+            data.billboard.Enabled = dist <= (config.espMaxDistance or 300)
 
-            -- BUG #6 FIX: dulu FindFirstChildWhichIsA("TextLabel", true) mengambil
-            -- TextLabel PERTAMA yang ditemukan (bisa saja diamond atau PlayerLabel),
-            -- lalu menimpa teksnya dengan jarak. Sekarang dicari spesifik "DistanceLabel".
-            local distLabel = billboard:FindFirstChild("DistanceLabel")
+            local distLabel = data.billboard:FindFirstChild("DistanceLabel")
             if distLabel then
                 distLabel.Text = tostring(math.floor(dist)) .. "m"
             end
         end
     end)
 
-    -- Simpan koneksi heartbeat ke dalam table connection
     table.insert(self.connection, conn)
 end
 
