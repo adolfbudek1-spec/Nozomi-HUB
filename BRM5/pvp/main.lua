@@ -38,7 +38,7 @@ NotifHistory:Bind(Velvet, Window)
 
 esp:refreshTrackedTarget(workspace, config)
 esp:setupListener(workspace, config)
-esp:startUpdater()    
+esp:startUpdater(config)    
 
 --======================== [[ VISUAL TAB ]] ========================--
 local visualTab = Window:AddTab("Visual", "eye")

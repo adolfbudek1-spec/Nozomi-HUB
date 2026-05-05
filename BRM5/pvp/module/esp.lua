@@ -206,6 +206,7 @@ function esp:setEspEnabled(enabled, config)
             -- lebih aman langsung pakai data.billboard yang sudah tersimpan
             if data.billboard then
                 data.billboard.Enabled = enabled
+                data.billboard.Active = enabled
             end
         else
             self.trackedRoots[root] = nil
