@@ -6,7 +6,7 @@ local Lighting = game:GetService("Lighting")
 
 -- MODULE
 local obsidian_repo = "https://raw.githubusercontent.com/deividcomsono/Obsidian/main/"
-local nozomi_repo = "https://raw.githubusercontent.com/theofitzgerald/Nozomi-HUB/refs/heads/main/BRM5/"
+local nozomi_repo = "https://raw.githubusercontent.com/theofitzgerald/Nozomi-HUB/refs/heads/main/BRM52/"
 local Library = loadstring(game:HttpGet(obsidian_repo .. "Library.lua"))()
 local ThemeManager = loadstring(game:HttpGet(obsidian_repo .. "addons/ThemeManager.lua"))()
 local var = loadstring(game:HttpGet(nozomi_repo .. "Variable.lua"))()
