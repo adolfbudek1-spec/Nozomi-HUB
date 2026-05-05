@@ -1,11 +1,24 @@
+local function load(url)
+    local success, result = pcall(function()
+        return loadstring(game:HttpGet(url))()
+    end)
+
+    if not success then
+        warn("FAILED URL:", url)
+        warn("ERROR:", result)
+        return {}
+    end
+
+    return result
+end
 local Velvetrepo = "https://raw.githubusercontent.com/DexCodeSX/Velvet/main/"
-local Velvet = loadstring(game:HttpGet(Velvetrepo .. "Library.lua"))()
-local Icons = loadstring(game:HttpGet(Velvetrepo .. "addons/Icons.lua"))()
-local QuickBar = loadstring(game:HttpGet(Velvetrepo .. "addons/QuickBar.lua"))()
-local NotifHistory = loadstring(game:HttpGet(Velvetrepo .. "addons/NotificationHistory.lua"))()
 local Nozomirepo = "https://raw.githubusercontent.com/theofitzgerald/Nozomi-HUB/main/"
-local config = loadstring(game:HttpGet(Nozomirepo.. "BRM5/pvp/module/config.lua"))
-local services = loadstring(game:HttpGet(Nozomirepo.. "BRM5/pvp/module/services.lua"))
+local Velvet = load(Velvetrepo .. "Library.lua")
+local Icons = load(Velvetrepo .. "addons/Icons.lua")
+local QuickBar = load(Velvetrepo .. "addons/QuickBar.lua")
+local NotifHistory = load(Velvetrepo .. "addons/NotificationHistory.lua")
+local config = load(Nozomirepo .. "BRM5/pvp/module/config.lua")
+local services = load(Nozomirepo .. "BRM5/pvp/module/services.lua")
 
 
 --======================== [[ CREATE WINDOW ]] ========================
