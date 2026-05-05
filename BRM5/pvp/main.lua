@@ -3,7 +3,7 @@ local Velvet = loadstring(game:HttpGet(Velvetrepo .. "Library.lua"))()
 local Icons = loadstring(game:HttpGet(Velvetrepo .. "addons/Icons.lua"))()
 local QuickBar = loadstring(game:HttpGet(Velvetrepo .. "addons/QuickBar.lua"))()
 local NotifHistory = loadstring(game:HttpGet(Velvetrepo .. "addons/NotificationHistory.lua"))()
-local Nozomirepo = "https://raw.githubusercontent.com/theofitzgerald/BRM5/main/"
+local Nozomirepo = "https://raw.githubusercontent.com/theofitzgerald/Nozomi-HUB/main/"
 local config = loadstring(game:HttpGet(Nozomirepo.. "BRM5/pvp/module/config.lua"))
 local services = loadstring(game:HttpGet(Nozomirepo.. "BRM5/pvp/module/services.lua"))
 
