@@ -13,28 +13,24 @@ local function load(url)
     return result
 end
 
-local Velvetrepo = "https://raw.githubusercontent.com/DexCodeSX/Velvet/main/"
+local Obsidianrepo = "https://raw.githubusercontent.com/deividcomsono/Obsidian/main/"
 local Nozomirepo = "https://raw.githubusercontent.com/theofitzgerald/Nozomi-HUB/main/"
-local Velvet = load(Velvetrepo .. "Library.lua")
-local Icons = load(Velvetrepo .. "addons/Icons.lua")
-local QuickBar = load(Velvetrepo .. "addons/QuickBar.lua")
-local NotifHistory = load(Velvetrepo .. "addons/NotificationHistory.lua")
+local obsidian = loadstring(game:HttpGet(Obsidianrepo .. "Library.lua"))()
 
 local esp = load(Nozomirepo .. "BRM5/pvp/module/esp.lua")
 local config = load(Nozomirepo .. "BRM5/pvp/module/config.lua")
 local services = load(Nozomirepo .. "BRM5/pvp/module/services.lua")
 
 --======================== [[ CREATE WINDOW ]] ========================--
-local Window = Velvet:CreateWindow({
-    Title = "Velvet",
-    SubTitle = "v3.2 showcase",
-    ToggleKey = Enum.KeyCode.RightShift,
-    ToggleIcon = "sparkles",
+local Window = obsidian:CreateWindow({
+	Title = "mspaint",
+	Footer = "version: example",
+	Icon = 95816097006870,
+	NotifySide = "Right",
+	ShowCustomCursor = true,
 })
 
 --======================== [[ SETUP ADDONS ]] ========================--
-Velvet:SetIcons(Icons)
-NotifHistory:Bind(Velvet, Window)
 
 esp:refreshTrackedTarget(workspace, config)
 esp:setupListener(workspace, config)
@@ -42,32 +38,31 @@ esp:startUpdater(config)
 
 --======================== [[ VISUAL TAB ]] ========================--
 local visualTab = Window:AddTab("Visual", "eye")
-local ESPSection_1 = visualTab:AddSection("ESP Player")
-ESPSection_1:AddToggle("ESPEnable_1", {
-    Text = "Enable Player ESP",
+local ESPGroupBox = visualTab:AddLeftGroupbox("ESP Player")
+ESPGroupBox:AddToggle("espEnabled", {
+    Text = "Enable ESP",
     Default = config.espEnabled,
     Callback = function(v)
-        esp:setEspEnabled(v, config)
-    end
+        config.espEnabled = v
+        setEspEnabled(v, config)
+    end,
 })
 
-ESPSection_1:AddColorPicker("ESPColor_1", {
-    Text = "ESP Color",
-    Default = config.espColor,
-    VisibleWhen = "ESPEnable_1",
-    Callback = function(color)
-        config.espColor = v
-    end
-})
-
-ESPSection_1:AddSlider("ESPDistance", {
-    Text = "Max Distance",
-    Min = 100, Max = 5000,
-    Default = config.espMaxDistance,
-    Increment = 50,
-    Suffix = " studs",
-    VisibleWhen = "ESPEnable_1",
+ESPGroupBox:AddToggle("espHiglight", {
+    Text = "Show Highlight",
+    Default = config.espHighlight,
     Callback = function(v)
-        config.espMaxDistance = v
-    end
+        config.espHiglight = v
+    end,
 })
+
+ESPGroupBox:AddSlider("espMaxDistance", {
+    Text     = "Max Distance",
+    Default  = config.espMaxDistance,
+    Min      = 100,
+    Max      = 5000,
+    Rounding = 0,
+    Callback = function(v)
+        config.MaxDistance = v
+    end,
+})	
