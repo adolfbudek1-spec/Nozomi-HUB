@@ -89,6 +89,18 @@ function esp:createMarker(root, config)
     part.Transparency = 1
     part.Parent = root
 
+    -- highlight
+    if config.espHighlight then
+        local highlight = Instance.new("SelectionBox")
+        highlight.Name = "ESP_HIGHLIGHT"
+        highlight.Adornee = root.Parent  -- adornee ke Model
+        highlight.Color3 = Color3.fromRGB(255, 0, 0)  -- default merah
+        highlight.LineThickness = 0.03
+        highlight.SurfaceTransparency = 0.7
+        highlight.SurfaceColor3 = Color3.fromRGB(255, 0, 0)
+        highlight.Parent = part
+    end
+
     local billboard = Instance.new("BillboardGui")
     billboard.Size = UDim2.new(0, 80, 0, 40)
     billboard.StudsOffsetWorldSpace = Vector3.new(0, 2.5, 0)
@@ -144,10 +156,42 @@ function esp:createMarker(root, config)
     labelDist.Parent = billboard
 
     self.trackedRoots[root] = {
-        part = part,
+        part      = part,
         billboard = billboard,
-        root = root
+        root      = root
     }
+end
+
+
+local raycastParams = RaycastParams.new()
+raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+
+local COLOR_VISIBLE = Color3.fromRGB(0, 255, 0)    -- hijau = terlihat
+local COLOR_HIDDEN  = Color3.fromRGB(255, 0, 0)    -- merah = di balik wall
+
+local function isVisible(fromPos, targetPos, modelToExclude)
+    -- exclude diri sendiri dan model target agar tidak kena hit sendiri
+    raycastParams.FilterDescendantsInstances = {
+        modelToExclude,
+        workspace.CurrentCamera
+    }
+
+    local direction = targetPos - fromPos
+    local result = workspace:Raycast(fromPos, direction, raycastParams)
+
+    -- jika tidak ada hit, atau hit terjadi melewati jarak target
+    -- berarti tidak ada halangan = terlihat
+    if not result then
+        return true
+    end
+
+    -- cek apakah yang kena hit adalah bagian dari model target sendiri
+    local hitInstance = result.Instance
+    if hitInstance and hitInstance:IsDescendantOf(modelToExclude) then
+        return true
+    end
+
+    return false
 end
 
 -- ============================================================
@@ -200,16 +244,24 @@ end
 function esp:setEspEnabled(enabled, config)
     config.espEnabled = enabled
 
-    for root, data in pairs(self.trackedRoots) do
-        if root and root.Parent then
-            -- BUG #4 (minor) FIX: dulu mencari ESP_BOX lalu FindFirstChildWhichIsA
-            -- lebih aman langsung pakai data.billboard yang sudah tersimpan
-            if data.billboard then
-                data.billboard.Enabled = enabled
-                data.billboard.Active = enabled
+    if not enabled then
+        -- destroy semua part, tapi tetap simpan di trackedRoots
+        -- supaya bisa di-recreate saat enable kembali
+        for root, data in pairs(self.trackedRoots) do
+            if data.part then
+                data.part:Destroy()
+                data.part = nil
+                data.billboard = nil
             end
-        else
-            self.trackedRoots[root] = nil
+        end
+    else
+        -- recreate marker untuk root yang masih valid
+        for root, data in pairs(self.trackedRoots) do
+            if root and root.Parent and not data.part then
+                self:createMarker(root, config)
+            else
+                self.trackedRoots[root] = nil
+            end
         end
     end
 end
@@ -226,34 +278,53 @@ function esp:startUpdater(config)
         if not myPos then return end
 
         -- deteksi perubahan warna & max distance
-        local colorChanged = config.espColor ~= self._lastEspColor
-        local distChanged  = config.espMaxDistance ~= self._lastMaxDistance
+        local colorChanged     = config.espColor ~= self._lastEspColor
+        local distChanged      = config.espMaxDistance ~= self._lastMaxDistance
+        local highlightChanged = config.espHighlight ~= self._lastHighlight
 
         if colorChanged or distChanged then
-            self._lastEspColor      = config.espColor
-            self._lastMaxDistance   = config.espMaxDistance
+            self._lastEspColor    = config.espColor
+            self._lastMaxDistance = config.espMaxDistance
 
             for _, data in pairs(self.trackedRoots) do
                 if colorChanged then
-                    local label = data.billboard:FindFirstChild("PlayerLabel")
+                    local label = data.billboard and data.billboard:FindFirstChild("PlayerLabel")
                     if label then
                         label.TextColor3 = config.espColor
                     end
                 end
 
                 if distChanged then
-                    data.billboard.MaxDistance = config.espMaxDistance
+                    if data.billboard then
+                        data.billboard.MaxDistance = config.espMaxDistance
+                    end
                 end
             end
         end
 
-        -- update posisi & jarak
+        -- highlight toggle berubah: recreate semua marker
+        if highlightChanged then
+            self._lastHighlight = config.espHighlight
+
+            for root, data in pairs(self.trackedRoots) do
+                if root and root.Parent and data.part then
+                    data.part:Destroy()
+                    data.part = nil
+                    data.billboard = nil
+                    self:createMarker(root, config)
+                end
+            end
+        end
+
+        -- update posisi, jarak, dan highlight color
         for root, data in pairs(self.trackedRoots) do
             if not root or not root.Parent then
                 if data.part then data.part:Destroy() end
                 self.trackedRoots[root] = nil
                 continue
             end
+
+            if not data.part then continue end
 
             data.part.CFrame = root.CFrame
 
@@ -264,6 +335,19 @@ function esp:startUpdater(config)
             local distLabel = data.billboard:FindFirstChild("DistanceLabel")
             if distLabel then
                 distLabel.Text = tostring(math.floor(dist)) .. "m"
+            end
+
+            -- update highlight color berdasarkan visibility raycast
+            if config.espHighlight then
+                local highlight = data.part:FindFirstChild("ESP_HIGHLIGHT")
+                if highlight then
+                    local model = root.Parent
+                    local visible = isVisible(myPos, root.Position, model)
+                    local color = visible and COLOR_VISIBLE or COLOR_HIDDEN
+
+                    highlight.Color3 = color
+                    highlight.SurfaceColor3 = color
+                end
             end
         end
     end)
