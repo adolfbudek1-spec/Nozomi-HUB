@@ -1,5 +1,7 @@
-local hi = "hello world"
+local v1 = {}
 
-print(hi)
+function v1:hello()
+    print("hello world")
+end
 
-return hi
+return v1
