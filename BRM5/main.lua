@@ -1,3 +1,22 @@
+local function getExecutorName()
+	if identifyexecutor then
+    	return identifyexecutor()
+	elseif getexecutorname then
+		return getexecutorname()
+	end
+	
+	return "Unknown"
+end
+
+local function GetGameMode()
+	local modes = { [4747446334]="Zombie Mode", [3701546109]="Open World" }
+	return modes[game.PlaceId] or "Unknown"
+end
+
+local function IsZombieMode() 
+	return GetGameMode() == "Zombie Mode" 
+end
+
 --[[============== LIBRARY (Obsidian) ==============]]
 local obsidian_repo = "https://raw.githubusercontent.com/deividcomsono/Obsidian/main/"
 local Library       = loadstring(game:HttpGet(obsidian_repo .. "Library.lua"))()
@@ -5,61 +24,135 @@ local ThemeManager  = loadstring(game:HttpGet(obsidian_repo .. "addons/ThemeMana
 
 local Options = Library.Options
 local Toggles = Library.Toggles
---[[local Window = Library:CreateWindow({
+local Window = Library:CreateWindow({
 	Title      = "Nozomi HUB",
-	Footer     = "version: 1.5 | Map: " .. GetGameMode(),
+	Footer     = "version: 1.5 | Map: " .. GetGameMode().." | Executor: "..getExecutorName(),
 	NotifySide = "Right",
 	Theme      = "Dark"
-})]]
+})
 
 --[[============== MODULAR ==============]]
 local GITHUB_BASE = "https://raw.githubusercontent.com/theofitzgerald/Nozomi-HUB/main/BRM5/modules/" 
-local VERSION = "v1"
-local CACHE_BUSTER = VERSION .. "-" .. tostring(os.time())
+local CACHE_BUSTER = "chace_bust-" .. tostring(os.time())
 
 local function loadModule(name)
-    local url = GITHUB_BASE .. name .. ".lua?v=" .. CACHE_BUSTER
+    local ok, res = pcall(game.HttpGet, game, GITHUB_BASE .. name .. ".lua?v=" .. CACHE_BUSTER)
+    if not ok then error("Download failed: "..name) end
 
-    print("[LOADING]", name)
-    print(url)
+    local func, err = loadstring(res)
+    if not func then error("Compile failed: "..name.." | "..err) end
 
-    local success, response = pcall(function()
-        return game:HttpGet(url)
-    end)
+    local s, r = pcall(func)
+    if not s then error("Runtime failed: "..name.." | "..r) end
 
-    if not success then
-        error("Failed download module: " .. name)
-    end
-
-    local compiled, compileError = loadstring(response)
-
-    if not compiled then
-        error("Compile error in " .. name .. ": " .. tostring(compileError))
-    end
-
-    local ok, result = pcall(compiled)
-
-    if not ok then
-        error("Runtime error in " .. name .. ": " .. tostring(result))
-    end
-
-    return result
+    return r
 end
 
-local Services     = loadModule("services")
-local Config       = loadModule("config")
-local ESP          = loadModule("esp")
-local MovingPart   = loadModule("movingpart")
-local SpeedHack    = loadModule("speedhack")
-local Checkpoint   = loadModule("checkpoint")
-local Variable     = loadModule("variable")
-local MapEditor    = loadModule("mapeditor")
+local services     = loadModule("services")
+local config       = loadModule("config")
+local esp          = loadModule("esp")
+local movingpart   = loadModule("movingpart")
+local speedhack    = loadModule("speedhack")
+local checkpoint   = loadModule("checkpoint")
+local var     	   = loadModule("variable")
+local mapeditor    = loadModule("mapeditor")
 
-print("All modules loaded!")
 --[[============== CONNECTION TRACKER ==============]]
 local Connections = {}
 local function Track(conn)
 	table.insert(Connections, conn)
 	return conn
 end
+
+--[[========================= [ TABLIST ] =========================]]
+local tabs = {}
+tabs.main = Window:AddTab("Main", "user")
+tabs.settings = Window:AddTab("Settings", "wrench")
+
+--[[ MAIN TAB ]]
+local ESP_BOX = tabs.main:AddLeftGrouobox("esp", "eye")
+	ESP_BOX:AddToggle("EspZombie", {
+		Text     = "Toggle ESP Zombie",
+		Default  = false,
+		Callback = function(v)
+
+		end,
+	})
+	-- NPC
+	ESP_BOX:AddToggle("EspNpc", {
+		Text     = "Toggle ESP NPC",
+		Default  = false,
+		Callback = function(v)
+
+		end,
+	})
+	-- Player: raycast hijau/merah
+	ESP_BOX:AddToggle("EspPlayer", {
+		Text     = "Toggle ESP Player",
+		Default  = false,
+		Callback = function(v)
+
+		end,
+	})
+	ESP_BOX:AddToggle("EspPlayer2", {
+		Text     = "Show Label",
+		Default  = false,
+		Callback = function(v)
+		end,
+	})
+	ESP_BOX:AddSlider("EspLabelDistance", {
+		Text     = "Label Distance",
+		Default  = 1000,
+		Min      = 1,
+		Max      = 9999,
+		Rounding = 0,
+		Callback = function(v)
+
+		end,
+	})
+
+--[[ SETTINGS TAB ]]
+local MENU_BOX = tabs.settings:AddLeftGroupbox("Menu", "wrench")
+	MENU_BOX:AddToggle("KeybindMenuOpen", {
+		Default  = Library.KeybindFrame.Visible,
+		Text     = "Open Keybind Menu",
+		Callback = function(v) Library.KeybindFrame.Visible = v end,
+	})
+	MENU_BOX:AddToggle("ShowCustomCursor", {
+		Text     = "Custom Cursor",
+		Default  = true,
+		Callback = function(v) Library.ShowCustomCursor = v end,
+	})
+	MENU_BOX:AddDropdown("NotificationSide", {
+		Values   = { "Left", "Right" },
+		Default  = "Right",
+		Text     = "Notification Side",
+		Callback = function(v) Library:SetNotifySide(v) end,
+	})
+	MENU_BOX:AddDropdown("DPIDropdown", {
+		Values   = { "50%","75%","100%","125%","150%","175%","200%" },
+		Default  = "100%",
+		Text     = "DPI Scale",
+		Callback = function(v)
+			v = v:gsub("%%","")
+			Library:SetDPIScale(tonumber(v))
+		end,
+	})
+	MENU_BOX:AddSlider("UICornerSlider", {
+		Text     = "Corner Radius",
+		Default  = Library.CornerRadius,
+		Min      = 0,
+		Max      = 20,
+		Rounding = 0,
+		Callback = function(v) Window:SetCornerRadius(v) end,
+	})
+	MENU_BOX:AddDivider()
+	MENU_BOX:AddLabel("Menu bind")
+		:AddKeyPicker("MenuKeybind", { Default="F3", NoUI=true, Text="Menu keybind" })
+	Library.ToggleKeybind = Options.MenuKeybind
+
+	MENU_BOX:AddButton("Unload", function()
+		print("All Nozomi environments have been reset.")
+		Library:Unload()
+	end)
 
