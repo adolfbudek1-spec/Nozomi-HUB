@@ -73,41 +73,42 @@ tabs.settings = Window:AddTab("Settings", "wrench")
 local ESP_BOX = tabs.main:AddLeftGrouobox("esp", "eye")
 	ESP_BOX:AddToggle("EspZombie", {
 		Text     = "Toggle ESP Zombie",
-		Default  = false,
+		Default  = config.espZombieEnabled,
 		Callback = function(v)
-
+			config.espZombieEnabled = v
 		end,
 	})
-	-- NPC
+
 	ESP_BOX:AddToggle("EspNpc", {
 		Text     = "Toggle ESP NPC",
-		Default  = false,
+		Default  = config.espNpcEnabled,
 		Callback = function(v)
-
+			config.espNpcEnabled = v
 		end,
 	})
-	-- Player: raycast hijau/merah
+
 	ESP_BOX:AddToggle("EspPlayer", {
 		Text     = "Toggle ESP Player",
-		Default  = false,
+		Default  = config.espPlayerEnabled,
 		Callback = function(v)
-
+			config.espPlayerEnabled = v
 		end,
 	})
 	ESP_BOX:AddToggle("EspPlayer2", {
 		Text     = "Show Label",
-		Default  = false,
+		Default  = config.espLabelEnabled,
 		Callback = function(v)
+			config.espLabelEnabled = v
 		end,
 	})
 	ESP_BOX:AddSlider("EspLabelDistance", {
 		Text     = "Label Distance",
-		Default  = 1000,
-		Min      = 1,
-		Max      = 9999,
+		Default  = config.espLabelDistance,
+		Min      = 100,
+		Max      = 10000,
 		Rounding = 0,
 		Callback = function(v)
-
+			config.espLabelDistance = v
 		end,
 	})
 
