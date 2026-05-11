@@ -70,7 +70,7 @@ tabs.main = Window:AddTab("Main", "user")
 tabs.settings = Window:AddTab("Settings", "wrench")
 
 --[[ MAIN TAB ]]
-local ESP_BOX = tabs.main:AddLeftGrouobox("esp", "eye")
+local ESP_BOX = tabs.main:AddLeftGroupbox("esp", "eye")
 	ESP_BOX:AddToggle("EspZombie", {
 		Text     = "Toggle ESP Zombie",
 		Default  = config.espZombieEnabled,
