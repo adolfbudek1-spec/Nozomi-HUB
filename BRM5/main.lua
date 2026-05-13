@@ -2,43 +2,47 @@ if typeof(clear) == "function" then
     clear()
 end
 
-local MAIN_VERSION = "cache-bust-2026-03-18-03"
+local function geturl(path)
+    print("[geturl]", path)
 
-local GITHUB_BASE = "https://raw.githubusercontent.com/theofitzgerald/Nozomi-HUB/main/"
-local GITHUB_MODULE = GITHUB_BASE .. "BRM5/modules/"
-local CACHE_BUSTER = MAIN_VERSION .. "-" .. tostring(os.time())
+    path = tostring(path):gsub("\\", "/"):gsub("^/", "")
+    local url = "https://raw.githubusercontent.com/theofitzgerald/Nozomi-HUB/main/" .. path
 
-local function get(url)
-    return game:HttpGet(url .. "?v=" .. CACHE_BUSTER)
+    print("[url]", url)
+    return url
 end
 
-local function loadRemote(path)
-    local success, result = pcall(function()
-        return loadstring(get(GITHUB_BASE .. path))()
-    end)
+local function loadModule(path)
+    local url = geturl(path)
 
-    if not success then
-        warn("[NOZOMI HUB] Failed loading:", path)
-        warn(result)
-
-        return nil
+    local ok, src = pcall(game.HttpGet, game, url)
+    if not ok then
+        warn("[http error]", src, url)
+        return
     end
 
-    return result
+    local fn, err = loadstring(src)
+    if not fn then
+        warn("[compile error]", err)
+        print(src:sub(1, 300))
+        return
+    end
+
+    local ok2, res = pcall(fn)
+    if not ok2 then
+        warn("[runtime error]", res)
+    end
+
+    print("[loaded]", path)
+    return res
 end
 
-local services = loadRemote("services.lua")
-local ui = loadRemote("ui.lua")
-
-if not ui then
-    return warn("[NOZOMI HUB] UI failed to load")
-end
-
+local services = loadModule("services.lua")
+local ui = loadModule("ui.lua")
 local library = ui.library
 local window = ui.window
 
+
 --======================= [[ MAIN TAB ]] =======================--
-
 local mainTab = ui:addTab("Main", "house")
-
-mainTab:AddLabel("Nozomi HUB Loaded")
+mainTab:AddLabel("Kontol Kau Pecah")

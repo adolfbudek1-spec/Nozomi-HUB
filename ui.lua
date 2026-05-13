@@ -2,7 +2,7 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local repo = "https://raw.githubusercontent.com/deividcomsono/Obsidian/main/"
 
 local ui = {}
-ui.library = loadstring(game:HttpGet(repo .. "self.library.lua"))()
+ui.library = loadstring(game:HttpGet(repo .. "library.lua"))()
 ui.saveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
 ui.options = ui.library.Options
 ui.toggles = ui.library.Toggles
