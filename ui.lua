@@ -4,6 +4,8 @@ local repo = "https://raw.githubusercontent.com/deividcomsono/Obsidian/main/"
 local ui = {}
 ui.library = loadstring(game:HttpGet(repo .. "self.library.lua"))()
 ui.saveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
+ui.options = ui.library.Options
+ui.toggles = ui.library.Toggles
 ui.tabs = {}
 ui.window = ui.library:CreateWindow({
     Title = "Nozomi HUB",
@@ -11,6 +13,7 @@ ui.window = ui.library:CreateWindow({
     Icon = "",
     NotifySide = "Left"
 })
+
 
 function ui:addTab(name: string, icon: string)
     local newTab = self.window:AddTab(name, icon)
