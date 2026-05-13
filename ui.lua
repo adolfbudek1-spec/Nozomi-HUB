@@ -79,7 +79,7 @@ UI_SETTINGS_BOX:AddLabel("Menu bind")
         Text = "Menu keybind"
     })
 
-ui.library.ToggleKeybind = Options.MenuKeybind
+ui.library.ToggleKeybind = ui.options.MenuKeybind
 UI_SETTINGS_BOX:AddButton("Unload", function()
     ui.library:Unload()
 end)
