@@ -1,5 +1,6 @@
 local Services = {}
 
+Services.MarketplaceService = game:GetService("MarketplaceService")
 Services.Players = game:GetService("Players")
 Services.RunService = game:GetService("RunService")
 Services.UserInputService = game:GetService("UserInputService")
