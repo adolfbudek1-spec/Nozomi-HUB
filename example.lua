@@ -65,16 +65,12 @@ local TABS = {}
 TABS.main = Window:AddTab("main", "house")
 TABS.settings = Window:AddTab("settings", "settings")
 
-
-
 -- Window settings
 Window:SetCompact(true)
 Window:SetCornerRadius(0)
 SaveManager:SetLibrary(ObsidianLibs)
 ThemeManager:SetFolder("NozomiHUB")
 SaveManager:SetFolder("NozomiHUB/example")
-SaveManager:LoadAutoloadConfig()
-SaveManager:BuildConfigSection(TABS.settings)
 SaveManager:SetIgnoreIndexes({ "MenuKeybind" })
 SaveManager:IgnoreThemeSettings()
 ThemeManager:SetLibrary(ObsidianLibs)
@@ -92,16 +88,16 @@ local testMenu = TABS.main:AddLeftGroupbox("TEST", "user")
         Default = false,
         Text = "This is just a test",
         Callback = function(v)
-            toggles.test.Value = v
         end,
     })
 
-while true do
-    task.wait(3)
-    if toggles.test.Value then
-        print("Test is success")
+task.spawn(function()
+    while task.wait(3) do
+        if toggles.test.Value then
+            print("Test is success")
+        end
     end
-end
+end)
 
 --[[====================== SETTINGS TABS ======================]]
 local settingsMenu = TABS.settings:AddLeftGroupbox("UI Settings", "wrench")
@@ -172,3 +168,10 @@ local settingsMenu = TABS.settings:AddLeftGroupbox("UI Settings", "wrench")
                 })
             end
         })
+
+
+-- End of the script
+SaveManager:BuildConfigSection(TABS.settings)
+SaveManager:LoadAutoloadConfig()        
+
+
